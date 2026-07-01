@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Journey — Proactive CCTV Resolution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#f6f7f9;color:#15171c;font-family:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 36px 110px;}
+  .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#5b57e6;margin-bottom:13px;}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.9px;line-height:1.12;margin:0 0 12px;}
+  .scenario{font-size:15.5px;line-height:1.6;color:#586471;max-width:780px;margin:0;}
+  .scenario b{color:#15171c;font-weight:600;}
+
+  h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9aa0ab;margin:0 0 16px;}
+  section{padding-top:46px;}
+
+  /* action-mode chips (shared everywhere) */
+  .m-chip{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;border-radius:7px;padding:3px 9px;border:1px solid;white-space:nowrap;}
+  .m-watch{background:#e6f1fb;color:#185fa5;border-color:#cfe4f7;}
+  .m-onsite{background:#e8f2ef;color:#2f6b5e;border-color:#d2e7e0;}
+  .m-approval{background:#faeeda;color:#854f0b;border-color:#f0dcb8;}
+  .m-vclose{background:#eaf3de;color:#3b6d11;border-color:#d8e9c2;}
+  .m-auto{background:#eaf1fe;color:#2563c9;border-color:#d6e4fc;}
+
+  /* CAST */
+  .cast{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start;}
+  .castcol{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:16px 18px;}
+  .castcol .ch{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .chip{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:13px;font-weight:600;border-radius:9px;padding:8px 11px;margin:0 0 6px 0;border:1px solid;}
+  .chip .who{font-weight:700;}
+  .chip .what{font-weight:500;font-size:11.5px;opacity:.85;}
+  .c-cust{background:#eeeef9;border-color:#e0e0f4;color:#3835a6;}
+  .c-agent{background:#eaf1fe;border-color:#d6e4fc;color:#1f5fb8;display:inline-flex;margin-right:6px;}
+  .c-human{background:#f7f4fc;border-color:#e6dcfa;color:#3d424d;}
+  .swatch{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  /* RELAY */
+  .stage{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:16px 18px 16px 20px;position:relative;border-left:4px solid #d6e4fc;}
+  .stage.agent{border-left-color:#2563c9;}
+  .stage.human{border-left-color:#7c3aed;}
+  .stage.cust{border-left-color:#5b57e6;}
+  .stage.done{border-left-color:#18935f;}
+  .shead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:7px;}
+  .sleft{display:flex;align-items:center;gap:12px;min-width:0;}
+  .snum{width:26px;height:26px;border-radius:8px;background:#15171c;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sname{font-size:16px;font-weight:700;letter-spacing:-.2px;}
+  .actor{font-size:12px;font-weight:700;border-radius:8px;padding:5px 11px;white-space:nowrap;flex-shrink:0;}
+  .a-agent{background:#eaf1fe;color:#1f5fb8;}
+  .a-human{background:#f3effb;color:#6d28c4;}
+  .a-cust{background:#eeeef9;color:#3835a6;}
+  .a-done{background:#e7f5ee;color:#18935f;}
+  .sbody{font-size:13.5px;line-height:1.55;color:#3d424d;padding-left:38px;}
+  .sbody .ran{color:#15171c;font-weight:600;}
+  .sbody .badgewrap{margin-left:6px;display:inline-block;vertical-align:1px;}
+
+  /* inline sub-markers */
+  .marker{margin:10px 0 0 38px;display:flex;align-items:flex-start;gap:10px;border-radius:10px;padding:9px 12px;font-size:12.5px;line-height:1.45;}
+  .marker.insight{background:#fdf4e9;border:1px solid #f3e0c4;color:#7a5114;}
+  .marker.vclose{background:#f1f7e9;border:1px solid #d8e9c2;color:#3b6d11;}
+  .marker .ic{font-size:14px;line-height:1.2;flex-shrink:0;}
+  .marker b{color:#15171c;}
+  .marker .mm{margin-left:4px;}
+
+  /* handoff connector */
+  .handoff{display:flex;align-items:center;gap:10px;padding:7px 0 7px 50px;color:#8b919e;font-size:12px;}
+  .handoff .arrow{color:#c4c2f3;font-size:15px;line-height:1;}
+  .handoff b{color:#586471;font-weight:600;}
+
+  /* HITL focus */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .hcard{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:18px 20px;}
+  .hcard.approval{border-top:3px solid #854f0b;}
+  .hcard.none{border-top:3px solid #b4b8c0;}
+  .hcard .htop{margin-bottom:10px;}
+  .hcard .hname{font-size:15px;font-weight:700;}
+  .hcard .hrole{font-size:12px;color:#8b919e;margin-top:1px;}
+  .hcard .mtag{margin:10px 0 12px;display:flex;gap:6px;flex-wrap:wrap;}
+  .hrow{font-size:13px;line-height:1.5;color:#3d424d;margin-top:9px;}
+  .hrow b{color:#9aa0ab;display:block;font-size:11px;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}
+  .hcard.none .hrow{color:#586471;}
+  .nolist{margin:8px 0 0;padding-left:0;list-style:none;}
+  .nolist li{font-size:12.5px;color:#586471;line-height:1.5;padding-left:18px;position:relative;margin-bottom:6px;}
+  .nolist li::before{content:"—";position:absolute;left:0;color:#b4b8c0;}
+  .note{font-size:13.5px;color:#586471;line-height:1.6;margin:0 0 20px;max-width:800px;}
+  .foot{margin-top:54px;padding-top:18px;border-top:1px solid #eceef2;font-size:12px;color:#9aa0ab;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">ITForce · Customer Journey · Story 1 (proactive)</div>
+  <h1>Proactive CCTV resolution — fixed before the customer knows</h1>
+  <p class="scenario"><b>Atlas Logistics — Meridian cold‑storage facility.</b> At 02:13am, Camera C‑07 in the Controlled Substances Cage is <b>online but has stopped writing footage</b> — a compliance failure hidden behind a green status light. Nobody reports it. TechGuard detects, diagnoses and fixes it remotely overnight, then hands the CSA a finished incident with a customer‑ready communication by morning. <b>P1</b> (compliance‑critical zone). This is the proactive mirror of Story 2.</p>
+
+  <!-- CAST -->
+  <section>
+    <h2>The actors</h2>
+    <div class="cast">
+      <div class="castcol">
+        <div class="ch" style="color:#3835a6;"><span class="swatch" style="background:#5b57e6;"></span>Customer</div>
+        <div class="chip c-cust"><span class="who">Tom Avery</span><span class="what">· Compliance &amp; Facilities, Atlas Logistics</span></div>
+        <div style="font-size:11.5px;color:#8b919e;line-height:1.45;margin-top:6px;">Never reports the issue. In the morning he opens his dashboard and finds the notification from the ITForce system — the footage‑gap disclosure already waiting for him.</div>
+      </div>
+      <div class="castcol">
+        <div class="ch" style="color:#1f5fb8;"><span class="swatch" style="background:#2563c9;"></span>Autonomous AI agents</div>
+        <div>
+          <span class="chip c-agent"><span class="who">Intake Agent</span></span>
+          <span class="chip c-agent"><span class="who">Diagnostic Agent</span></span>
+          <span class="chip c-agent"><span class="who">Resolution Agent</span></span>
+          <span class="chip c-agent"><span class="who">Communications Agent</span></span>
+        </div>
+        <div style="font-size:11.5px;color:#8b919e;line-height:1.45;margin-top:4px;">Field Service Orchestrator not used — the fix is fully remote.</div>
+      </div>
+      <div class="castcol">
+        <div class="ch" style="color:#6d28c4;"><span class="swatch" style="background:#7c3aed;"></span>Human in the loop</div>
+        <div class="chip c-human"><span class="who">Sarah Rose</span><span class="what">· Customer Service Agent</span><span class="m-chip m-approval">Approval</span><span class="m-chip m-vclose">Verify &amp; Close</span></div>
+        <div style="font-size:11.5px;color:#8b919e;line-height:1.45;margin-top:6px;">The only human — and only in the morning.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELAY -->
+  <section>
+    <h2>The story arc — what ran, in order, and the handoffs</h2>
+
+    <!-- 1 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">1</span><span class="sname">Monitor &amp; detect</span></div>
+        <span class="actor a-agent">Diagnostic Agent → Intake Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Diagnostic Agent</span> runs on a fixed schedule — every 5 minutes — checking footage integrity, not just heartbeat, across every Atlas camera. It catches C‑07 <span class="ran">online with PoE (Power over Ethernet — power and network data over one cable) normal, but its last footage write is 11 minutes stale</span>. On finding the anomaly it <span class="ran">hands the issue to the Intake Agent</span> to log and scope. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+      <div class="marker insight"><span class="ic">⚠</span><span><b>The operational trap: uptime is <span style="color:#18935f;">green</span>, compliance is <span style="color:#e5484d;">red</span>.</b> Legacy monitoring watches device heartbeat and would see nothing wrong. ITForce monitors whether footage is actually committing to storage — which is the thing the customer's audit depends on.</span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands the detected anomaly to <b>the Intake Agent to log &amp; scope</b></div>
+
+    <!-- 2 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">2</span><span class="sname">Triage &amp; scope</span></div>
+        <span class="actor a-agent">Intake Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Intake Agent</span> opens the structured incident — starting the SLA + footage‑gap clocks from 02:02am — then triages and scopes it: identifies C‑07 as covering the <span class="ran">Controlled Substances Cage</span>, a compliance‑critical zone, and marks it <span class="ran">P1</span> even though the device heartbeat is green. It then hands back to the Diagnostic Agent. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands back to <b>the Diagnostic Agent to troubleshoot</b></div>
+
+    <!-- 3 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">3</span><span class="sname">Troubleshoot</span></div>
+        <span class="actor a-agent">Diagnostic Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Diagnostic Agent</span> eliminates causes — PoE draw, network, NVR disk health, storage queue, other cameras on the same NVR. Only C‑07 is affected: <span class="ran">its recording stream got stuck during a scheduled retention‑policy rotation</span>. Confidence: 93%. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a 93%‑confidence root cause</b> to resolution</div>
+
+    <!-- 4 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">4</span><span class="sname">Run remote fix</span></div>
+        <span class="actor a-agent">Resolution Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Resolution Agent</span> runs the approved <span class="ran">Recording Stream Recovery runbook</span> — clears the stale stream lock, restarts the recording binding for C‑07, forces a new segment and reattaches the retention policy. It touches only C‑07, never the NVR or other compliance cameras. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a completed runbook</b> to verification</div>
+
+    <!-- 5 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">5</span><span class="sname">Verify recovery</span></div>
+        <span class="actor a-agent">Resolution Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Resolution Agent</span> does not self‑close. It watches new footage write at 02:25, 02:30, 02:35 and 02:40, confirms the timestamp stays under 5 minutes old, and marks recording continuity restored. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a verified recovery + footage‑gap evidence</b> to the Communications Agent</div>
+
+    <!-- 6 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">6</span><span class="sname">Draft security communication</span></div>
+        <span class="actor a-agent">Communications Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Communications Agent</span> drafts the customer notification — incident timing, root cause, resolution, time to resolution, the <span class="ran">02:02–02:25 footage gap (23 min)</span>, and redundancy coverage from camera C‑08. Because footage‑gap disclosure is compliance‑sensitive, it <span class="ran">queues for CSA approval</span> rather than sending. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a drafted customer notification</b> for approval</div>
+
+    <!-- 7 -->
+    <div class="stage human">
+      <div class="shead">
+        <div class="sleft"><span class="snum">7</span><span class="sname">Morning review, approve &amp; send</span></div>
+        <span class="actor a-human">Sarah Rose, Customer Service Agent</span>
+      </div>
+      <div class="sbody">At 08:05am Sarah Rose logs in to a <span class="ran">resolved overnight incident — not an emergency</span>. She reviews the root cause, time to resolution, footage gap and redundancy note, then <span class="ran">approves the draft, sends it to Atlas, and closes the incident</span>. <span class="badgewrap"><span class="m-chip m-approval">Approval</span> <span class="m-chip m-vclose">Verify &amp; Close</span></span></div>
+      <div class="marker vclose"><span class="ic">✓</span><span><b>Why a human here.</b> All outbound B2B client communications are Approval mode, and footage‑gap disclosure carries compliance exposure — the agent can't self‑send. Sarah owns the customer trust moment and the sign‑off that lets the incident close.</span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> sends <b>the approved disclosure</b> to the customer</div>
+
+    <!-- 8 -->
+    <div class="stage cust">
+      <div class="shead">
+        <div class="sleft"><span class="snum">8</span><span class="sname">Customer receives the communication</span></div>
+        <span class="actor a-cust">Tom Avery, Atlas Logistics</span>
+      </div>
+      <div class="sbody">At 08:12am Tom Avery opens the TechGuard portal and finds <span class="ran">a communication from the ITForce system</span> waiting in his notification center — sent by the Communications Agent, approved by Sarah. He reads the <span class="ran">02:02–02:25 footage gap (23 min)</span>, the root cause, the fix, and the C‑08 redundancy note. He <span class="ran">never filed a ticket and never noticed the failure</span> — the audit‑grade disclosure simply arrived. <span class="badgewrap"><span class="m-chip m-vclose">Notified</span></span></div>
+      <div class="marker vclose"><span class="ic">✓</span><span><b>Why the customer is an actor here.</b> Proactive resolution only lands as trust if the invisible work is surfaced. Tom’s touchpoint is the morning communication — the moment a fix nobody saw becomes a documented, compliance‑ready disclosure in his hands.</span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a closed, communicated incident</b> to prevention</div>
+
+    <!-- 9 -->
+    <div class="stage done">
+      <div class="shead">
+        <div class="sleft"><span class="snum">9</span><span class="sname">Post‑fix prevention &amp; self‑learning</span></div>
+        <span class="actor a-done">Diagnostic Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Diagnostic Agent</span> turns the incident into a forward signal — recommends checking the retention‑policy rotation on the other 5 controlled‑zone cameras <span class="ran">before the next scheduled rotation</span>, surfaced on the account health panel. The full incident trace — what was observed, tried and verified — <span class="ran">feeds the agent learning loop</span> so detection and resolution sharpen over time. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+  </section>
+
+  <!-- HITL FOCUS -->
+  <section>
+    <h2>The human in the loop — and why only one</h2>
+    <p class="note">In Story 2 a human entered three times — On‑site, Approval, and Watch. Here, the entire incident is detected, fixed and verified autonomously overnight. A human enters exactly once, in the morning, and only for the moment that needs human judgment: the compliance‑sensitive customer communication.</p>
+    <div class="duo">
+      <div class="hcard approval">
+        <div class="htop"><div class="hname">Sarah Rose</div><div class="hrole">Customer Service Agent · Stage 7</div></div>
+        <div class="mtag"><span class="m-chip m-approval">Approval</span><span class="m-chip m-vclose">Verify &amp; Close</span></div>
+        <div class="hrow"><b>Action</b>Reviews the resolved overnight incident and the drafted notification, approves and sends the security communication to Atlas, and signs off to close the case.</div>
+        <div class="hrow"><b>Why a human</b>Outbound B2B communications are always Approval mode, and a footage‑gap disclosure carries audit/compliance exposure — it needs an accountable person, not an autonomous send.</div>
+      </div>
+      <div class="hcard none">
+        <div class="htop"><div class="hname">No Field Service or IT Ops human needed</div><div class="hrole">Why the agents were allowed to act alone</div></div>
+        <div class="hrow"><b>Governance logic</b></div>
+        <ul class="nolist">
+          <li><b>No On‑site (Ray Oak):</b> the fix was achievable remotely — no physical fault, so no dispatch.</li>
+          <li><b>No Approval gate on the fix (Marcus Chen):</b> the runbook was reversible and limited to a single camera stream — low blast radius — so the Resolution Agent acted autonomously.</li>
+          <li><b>The only gate is the communication,</b> because that is where compliance exposure and customer trust live.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    ITForce · Customer Journey · Story 1 — Proactive CCTV Resolution · Atlas Logistics, Meridian cold‑storage. Agents named per the vision &amp; solution agent inventory (Intake · Diagnostic · Resolution · Communications; Field Service Orchestrator not used). Action modes per the HITL framework. Blue = autonomous agent · violet = human in the loop · indigo = customer · green = closed.
+  </div>
+
+</div>
+</body>
+</html>

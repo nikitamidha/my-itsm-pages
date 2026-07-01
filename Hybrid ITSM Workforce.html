@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGuard Hybrid ITSM Workforce Org Chart</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --panel: #ffffff;
+      --ink: #15202b;
+      --muted: #5f6f80;
+      --line: #b9c6d4;
+      --human-bg: #eaf2ff;
+      --human-border: #2364aa;
+      --ai-bg: #eaf7ea;
+      --ai-border: #3a7d44;
+      --control-bg: #f4f0ff;
+      --control-border: #6d59c7;
+      --external-bg: #fff4da;
+      --external-border: #b7791f;
+      --risk-bg: #fff7ed;
+      --risk-border: #c56a18;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      min-width: 1280px;
+      padding: 28px;
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 980px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 16px;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .org-chart {
+      width: 1220px;
+      margin: 0 auto;
+      padding: 24px 18px 28px;
+      background: var(--panel);
+      border: 1px solid #d7e0ea;
+      border-radius: 8px;
+      box-shadow: 0 18px 44px rgba(21, 32, 43, 0.08);
+      overflow: visible;
+    }
+
+    .level {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .level + .level {
+      margin-top: 34px;
+    }
+
+    .level + .level::before {
+      content: "";
+      position: absolute;
+      top: -34px;
+      left: 50%;
+      width: 1.5px;
+      height: 34px;
+      background: var(--line);
+    }
+
+    .branches {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      align-items: start;
+      margin-top: 42px;
+    }
+
+    .branches::before {
+      content: "";
+      position: absolute;
+      top: -22px;
+      left: 12.5%;
+      right: 12.5%;
+      height: 1.5px;
+      background: var(--line);
+    }
+
+    .branch {
+      position: relative;
+      min-width: 0;
+    }
+
+    .branch::before {
+      content: "";
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      width: 1.5px;
+      height: 22px;
+      background: var(--line);
+    }
+
+    .node {
+      width: 100%;
+      min-height: 72px;
+      border: 1.5px solid;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      text-align: center;
+    }
+
+    .node strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+      line-height: 1.28;
+      letter-spacing: 0;
+    }
+
+    .node span {
+      display: block;
+      color: #4b5c6d;
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .node.large {
+      width: 460px;
+      min-height: 84px;
+      padding: 13px 16px;
+    }
+
+    .node.medium {
+      width: 360px;
+    }
+
+    .node.small {
+      min-height: 64px;
+    }
+
+    .human {
+      background: var(--human-bg);
+      border-color: var(--human-border);
+    }
+
+    .ai {
+      background: var(--ai-bg);
+      border-color: var(--ai-border);
+    }
+
+    .control {
+      background: var(--control-bg);
+      border-color: var(--control-border);
+    }
+
+    .external {
+      background: var(--external-bg);
+      border-color: var(--external-border);
+    }
+
+    .risk {
+      background: var(--risk-bg);
+      border-color: var(--risk-border);
+    }
+
+    .swatch.human { background: var(--human-bg); border-color: var(--human-border); }
+    .swatch.ai { background: var(--ai-bg); border-color: var(--ai-border); }
+    .swatch.control { background: var(--control-bg); border-color: var(--control-border); }
+    .swatch.external { background: var(--external-bg); border-color: var(--external-border); }
+    .swatch.risk { background: var(--risk-bg); border-color: var(--risk-border); }
+
+    .branch-title {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .subtree {
+      position: relative;
+      display: grid;
+      gap: 12px;
+    }
+
+    .subtree::before {
+      content: "";
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      width: 1.5px;
+      height: 22px;
+      background: var(--line);
+    }
+
+    .pair {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .pair::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 25%;
+      right: 25%;
+      height: 1.5px;
+      background: var(--line);
+    }
+
+    .pair .node::before {
+      content: "";
+      position: absolute;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .section-label {
+      margin: 4px 0 -4px;
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .handoff-band {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px dashed #b7c4d2;
+    }
+
+    .handoff {
+      border-left: 3px solid #8398ad;
+      border-radius: 6px;
+      background: #f8fafc;
+      padding: 9px 10px;
+      min-height: 88px;
+    }
+
+    .handoff strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12.5px;
+    }
+
+    .handoff span {
+      color: var(--muted);
+      display: block;
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .note {
+      margin: 18px auto 0;
+      max-width: 1180px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @media print {
+      body { background: #fff; }
+      main { padding: 10px; }
+      .org-chart { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>TechGuard ITSM Hybrid Workforce Org Chart</h1>
+    </header>
+
+    <section class="org-chart" aria-label="TechGuard hybrid ITSM workforce org chart">
+      <div class="level">
+        <div class="node control large">
+          <strong>TechGuard Service Operations</strong>
+          <span>Hybrid ITSM workforce: humans manage judgment, trust, governance, physical work, and exceptions; autonomous agents run the repeatable operational work.</span>
+        </div>
+      </div>
+
+      <div class="level">
+        <div class="node control medium">
+          <strong>ITForce Control Plane</strong>
+          <span>Salesforce Service Cloud + Agentforce + Field Service Lightning + audit trail, work orders, and client communications.</span>
+        </div>
+      </div>
+
+      <div class="level">
+        <div class="node external medium">
+          <strong>Clients and Managed Assets</strong>
+          <span>15,000 B2B clients; CCTV cameras, web hosting assets, network circuits, sites, contacts, SLAs, and telemetry.</span>
+        </div>
+      </div>
+
+      <div class="branches">
+        <section class="branch">
+          <div class="node control branch-title">
+            <strong>L1 Frontline Service</strong>
+            <span>Client-facing command layer for intake, trust, comms, and relationship-aware decisions.</span>
+          </div>
+          <div class="subtree">
+            <div class="node human">
+              <strong>CSA Leads</strong>
+              <span>Own queue health, escalations, client-sensitive accounts, and frontline performance.</span>
+            </div>
+            <div class="node human">
+              <strong>L1 Customer Service Agents</strong>
+              <span>Approve outbound comms, handle ambiguous intake, manage client expectations, and close the loop.</span>
+            </div>
+            <div class="section-label">Autonomous L1 workforce</div>
+            <div class="pair">
+              <div class="node ai small">
+                <strong>Scoping & Triage Agent</strong>
+                <span>Classifies service line, priority, scope, and impact.</span>
+              </div>
+              <div class="node ai small">
+                <strong>Router Agent</strong>
+                <span>Routes by confidence, skill, SLA, tier, and incident type.</span>
+              </div>
+            </div>
+            <div class="pair">
+              <div class="node ai small">
+                <strong>Communication Agent</strong>
+                <span>Drafts client updates, closure notes, and legal-sensitive notices.</span>
+              </div>
+              <div class="node ai small">
+                <strong>SLA Prediction Agent</strong>
+                <span>Warns before breach and prioritizes human attention.</span>
+              </div>
+            </div>
+            <div class="node risk">
+              <strong>Gate: CSA Approval</strong>
+              <span>All outbound B2B client communications require human approval.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="branch">
+          <div class="node control branch-title">
+            <strong>Autonomous Platform Layer</strong>
+            <span>Always-on digital workforce watching the full fleet before a client reports pain.</span>
+          </div>
+          <div class="subtree stack">
+            <div class="node ai">
+              <strong>Monitoring & Detection Agent</strong>
+              <span>Opens structured incidents proactively from telemetry and health signals.</span>
+            </div>
+            <div class="node ai">
+              <strong>Asset Discovery & Inventory Agent</strong>
+              <span>Finds unmanaged, missing, new, or changed assets and drafts registry updates.</span>
+            </div>
+            <div class="node ai">
+              <strong>Preventive Maintenance Agent</strong>
+              <span>Schedules firmware, inspections, failover tests, and backup verification.</span>
+            </div>
+            <div class="node ai">
+              <strong>Impact & Correlation Agent</strong>
+              <span>Clusters incidents by ISP, provider, region, asset model, or root cause.</span>
+            </div>
+            <div class="node risk">
+              <strong>Gate: Cluster Review</strong>
+              <span>CSA spots surface patterns; IT Ops validates technical correlation and response.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="branch">
+          <div class="node control branch-title">
+            <strong>Backend IT Operations</strong>
+            <span>Technical authority for risky actions, specialist depth, autonomy governance, and major incidents.</span>
+          </div>
+          <div class="subtree">
+            <div class="node human">
+              <strong>IT Ops Lead</strong>
+              <span>Owns major incidents, calibration, autonomy thresholds, and governance.</span>
+            </div>
+            <div class="node human">
+              <strong>IT Ops Managers</strong>
+              <span>Approve risky changes, validate diagnostics, reroute novel cases, and authorize dispatch.</span>
+            </div>
+            <div class="section-label">Human specialists</div>
+            <div class="pair">
+              <div class="node human small">
+                <strong>Web Hosting Specialist</strong>
+                <span>Checkout, rollback, malware, DB, production risk.</span>
+              </div>
+              <div class="node human small">
+                <strong>Network Specialist</strong>
+                <span>ISP, SD-WAN, routing, brownout, demarc evidence.</span>
+              </div>
+            </div>
+            <div class="pair">
+              <div class="node human small">
+                <strong>CCTV / VMS Specialist</strong>
+                <span>NVR, PoE, storage, firmware, footage gaps.</span>
+              </div>
+              <div class="node human small">
+                <strong>Security / Compliance Specialist</strong>
+                <span>Legal notices, malware, audit, compliance risk.</span>
+              </div>
+            </div>
+            <div class="section-label">Specialist autonomous agents</div>
+            <div class="pair">
+              <div class="node ai small">
+                <strong>Web Hosting Resolution Agent</strong>
+                <span>Safe fixes, rollback proposal, DNS, cache, PHP.</span>
+              </div>
+              <div class="node ai small">
+                <strong>Network Diagnostic Agent</strong>
+                <span>Blackout vs brownout, OSI layer, ISP evidence.</span>
+              </div>
+            </div>
+            <div class="pair">
+              <div class="node ai small">
+                <strong>CCTV Diagnostic Agent</strong>
+                <span>Camera vs switch, PoE cycle, remote attempts.</span>
+              </div>
+              <div class="node ai small">
+                <strong>Footage / Deploy / Baseline Agents</strong>
+                <span>Recording health, deploy regression, circuit baseline.</span>
+              </div>
+            </div>
+            <div class="node risk">
+              <strong>Gate: IT Ops Approval</strong>
+              <span>Irreversible changes, ISP escalation, dispatch, fleet blast radius, and legal/compliance risk.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="branch">
+          <div class="node control branch-title">
+            <strong>Field Service</strong>
+            <span>Physical authority for site diagnosis, repair, install, access realities, and customer sign-off.</span>
+          </div>
+          <div class="subtree">
+            <div class="node human">
+              <strong>Field Service Lead</strong>
+              <span>Owns territory capacity, dispatch quality, parts readiness, and repeat-visit prevention.</span>
+            </div>
+            <div class="node human">
+              <strong>Field Service Agents</strong>
+              <span>Execute physical diagnosis, replacement, cabling, installation, verification, and site sign-off.</span>
+            </div>
+            <div class="section-label">Autonomous field workforce</div>
+            <div class="node ai">
+              <strong>Field Dispatch Agent</strong>
+              <span>Creates FSL WorkOrder with root cause, parts, access, warranty, prior attempts, and checklist.</span>
+            </div>
+            <div class="node ai">
+              <strong>Field Service Copilot</strong>
+              <span>Guides on-site steps, captures voice/tap notes, surfaces similar cases, and enforces close criteria.</span>
+            </div>
+            <div class="node risk">
+              <strong>Gate: Assist / Scope Change</strong>
+              <span>Field agent escalates when on-site reality differs from the briefing or remote action is needed.</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="handoff-band">
+        <div class="handoff">
+          <strong>Proactive Path</strong>
+          <span>Assets -> Monitoring -> Triage -> Service-line agent -> safe fix or IT Ops approval.</span>
+        </div>
+        <div class="handoff">
+          <strong>Reactive Path</strong>
+          <span>Client -> CSA + Triage -> Router -> autonomous diagnostic or specialist queue.</span>
+        </div>
+        <div class="handoff">
+          <strong>Specialist Path</strong>
+          <span>Agent selects the right human specialist by skill, permission, confidence, and availability.</span>
+        </div>
+        <div class="handoff">
+          <strong>Field Path</strong>
+          <span>IT Ops approves dispatch -> Field Dispatch Agent -> Field Agent + Copilot.</span>
+        </div>
+        <div class="handoff">
+          <strong>Closure Path</strong>
+          <span>Verify checklist -> Comms draft -> CSA approval -> client update -> case close.</span>
+        </div>
+      </div>
+    </section>
+
+    <p class="note">
+      Read vertically as hierarchy and horizontally as operating model: green AI workers handle repeatable sensing, triage, diagnosis, routing, drafting, and guidance; blue human workers own trust, judgment, approvals, specialist depth, and physical work.
+    </p>
+  </main>
+</body>
+</html>

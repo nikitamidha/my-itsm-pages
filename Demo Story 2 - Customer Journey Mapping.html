@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Journey — Network Connectivity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#f6f7f9;color:#15171c;font-family:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 36px 110px;}
+  .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#5b57e6;margin-bottom:13px;}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.9px;line-height:1.12;margin:0 0 12px;}
+  .scenario{font-size:15.5px;line-height:1.6;color:#586471;max-width:760px;margin:0;}
+  .scenario b{color:#15171c;font-weight:600;}
+
+  h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9aa0ab;margin:0 0 16px;}
+  section{padding-top:46px;}
+
+  /* action-mode chips (shared everywhere) */
+  .m-chip{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;border-radius:7px;padding:3px 9px;border:1px solid;white-space:nowrap;}
+  .m-watch{background:#e6f1fb;color:#185fa5;border-color:#cfe4f7;}
+  .m-onsite{background:#e8f2ef;color:#2f6b5e;border-color:#d2e7e0;}
+  .m-approval{background:#faeeda;color:#854f0b;border-color:#f0dcb8;}
+  .m-auto{background:#eaf1fe;color:#2563c9;border-color:#d6e4fc;}
+
+  /* CAST */
+  .cast{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start;}
+  .castcol{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:16px 18px;}
+  .castcol .ch{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .chip{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:13px;font-weight:600;border-radius:9px;padding:8px 11px;margin:0 0 6px 0;border:1px solid;}
+  .chip .who{font-weight:700;}
+  .chip .what{font-weight:500;font-size:11.5px;opacity:.85;}
+  .c-cust{background:#eeeef9;border-color:#e0e0f4;color:#3835a6;}
+  .c-agent{background:#eaf1fe;border-color:#d6e4fc;color:#1f5fb8;display:inline-flex;margin-right:6px;}
+  .c-human{background:#f7f4fc;border-color:#e6dcfa;color:#3d424d;}
+  .swatch{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  /* RELAY */
+  .stage{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:16px 18px 16px 20px;position:relative;border-left:4px solid #d6e4fc;}
+  .stage.agent{border-left-color:#2563c9;}
+  .stage.human{border-left-color:#7c3aed;}
+  .stage.cust{border-left-color:#5b57e6;}
+  .stage.done{border-left-color:#18935f;}
+  .shead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:7px;}
+  .sleft{display:flex;align-items:center;gap:12px;min-width:0;}
+  .snum{width:26px;height:26px;border-radius:8px;background:#15171c;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sname{font-size:16px;font-weight:700;letter-spacing:-.2px;}
+  .actor{font-size:12px;font-weight:700;border-radius:8px;padding:5px 11px;white-space:nowrap;flex-shrink:0;}
+  .a-agent{background:#eaf1fe;color:#1f5fb8;}
+  .a-human{background:#f3effb;color:#6d28c4;}
+  .a-cust{background:#eeeef9;color:#3835a6;}
+  .a-done{background:#e7f5ee;color:#18935f;}
+  .sbody{font-size:13.5px;line-height:1.55;color:#3d424d;padding-left:38px;}
+  .sbody .ran{color:#15171c;font-weight:600;}
+  .sbody .badgewrap{margin-left:6px;display:inline-block;vertical-align:1px;}
+
+  /* inline sub-markers */
+  .marker{margin:10px 0 0 38px;display:flex;align-items:flex-start;gap:10px;border-radius:10px;padding:9px 12px;font-size:12.5px;line-height:1.45;}
+  .marker.loop{background:#eef4fe;border:1px solid #d6e4fc;color:#244e86;}
+  .marker.watch{background:#eef5fc;border:1px solid #d3e6f6;color:#1d557f;}
+  .marker.onsite{background:#eef5f2;border:1px solid #d2e7e0;color:#2c6256;}
+  .marker .ic{font-size:14px;line-height:1.2;flex-shrink:0;}
+  .marker b{color:#15171c;}
+  .marker .mm{margin-left:4px;}
+
+  /* handoff connector */
+  .handoff{display:flex;align-items:center;gap:10px;padding:7px 0 7px 50px;color:#8b919e;font-size:12px;}
+  .handoff .arrow{color:#c4c2f3;font-size:15px;line-height:1;}
+  .handoff b{color:#586471;font-weight:600;}
+
+  /* HITL focus */
+  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .hcard{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:18px 20px;}
+  .hcard.watch{border-top:3px solid #185fa5;}
+  .hcard.onsite{border-top:3px solid #2f6b5e;}
+  .hcard.approval{border-top:3px solid #854f0b;}
+  .hcard .htop{margin-bottom:10px;}
+  .hcard .hname{font-size:15px;font-weight:700;}
+  .hcard .hrole{font-size:12px;color:#8b919e;margin-top:1px;}
+  .hcard .mtag{margin:10px 0 12px;}
+  .hrow{font-size:13px;line-height:1.5;color:#3d424d;margin-top:9px;}
+  .hrow b{color:#9aa0ab;display:block;font-size:11px;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}
+  .note{font-size:13.5px;color:#586471;line-height:1.6;margin:0 0 20px;max-width:800px;}
+  .foot{margin-top:54px;padding-top:18px;border-top:1px solid #eceef2;font-size:12px;color:#9aa0ab;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">ITForce · Customer Journey</div>
+  <h1>Network connectivity incident — problem to resolution</h1>
+  <p class="scenario"><b>Northstar Dental, Plano West.</b> At 08:17 Elena reports: "the internet says connected, but patient check‑in and X‑rays keep timing out — patients are waiting." A <b>P1</b> incident, SLA to restore in <b>2 hours</b>. Below: who did what, in what order, and where it handed off.</p>
+
+  <!-- CAST -->
+  <section>
+    <h2>The actors</h2>
+    <div class="cast">
+      <div class="castcol">
+        <div class="ch" style="color:#3835a6;"><span class="swatch" style="background:#5b57e6;"></span>Customer</div>
+        <div class="chip c-cust"><span class="who">Elena</span><span class="what">· clinic front desk</span></div>
+      </div>
+      <div class="castcol">
+        <div class="ch" style="color:#1f5fb8;"><span class="swatch" style="background:#2563c9;"></span>Autonomous AI agents</div>
+        <div>
+          <span class="chip c-agent"><span class="who">Intake Agent</span></span>
+          <span class="chip c-agent"><span class="who">Diagnostic Agent</span></span>
+          <span class="chip c-agent"><span class="who">Resolution Agent</span></span>
+          <span class="chip c-agent"><span class="who">Field Service Orchestrator</span></span>
+          <span class="chip c-agent"><span class="who">Communications Agent</span></span>
+        </div>
+      </div>
+      <div class="castcol">
+        <div class="ch" style="color:#6d28c4;"><span class="swatch" style="background:#7c3aed;"></span>Humans in the loop</div>
+        <div class="chip c-human"><span class="who">Sarah Rose</span><span class="what">· Customer Service Agent</span><span class="m-chip m-watch">Watch</span></div>
+        <div class="chip c-human"><span class="who">Ray Oak</span><span class="what">· Field Service Agent</span><span class="m-chip m-onsite">On‑site</span></div>
+        <div class="chip c-human"><span class="who">Marcus Chen</span><span class="what">· IT Ops</span><span class="m-chip m-approval">Approval</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELAY -->
+  <section>
+    <h2>The story arc — what ran, in order, and the handoffs</h2>
+
+    <!-- 1 -->
+    <div class="stage cust">
+      <div class="shead">
+        <div class="sleft"><span class="snum">1</span><span class="sname">Report</span></div>
+        <span class="actor a-cust">Elena → Intake Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Intake Agent</span> captures Elena's plain‑language complaint and opens the structured incident record. No forms, no menus. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a new incident</b> to triage</div>
+
+    <!-- 2 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">2</span><span class="sname">Classify &amp; initial diagnosis</span></div>
+        <span class="actor a-agent">Intake Agent → Diagnostic Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Intake Agent</span> classifies the incident — <span class="ran">Network Connectivity · P1 · single clinic · critical apps</span> — and invokes the <span class="ran">Diagnostic Agent</span> once for a remote assessment before deciding the path. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+      <div class="marker loop"><span class="ic">⟲</span><span><b>Why it can't be fixed from the backend.</b> General browsing works, but the dental‑app traffic is degraded — the fault sits between local CPE, on‑site cabling and the provider path. Remote telemetry can't isolate which side is at fault; the only definitive test is a physical <b>demarc check</b> on site. With network confidence under the ~70% autonomous ceiling, the Diagnostic Agent concludes: <b>remote resolution exhausted → on‑site required.</b></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a classified ticket flagged "on‑site required"</b> to dispatch</div>
+
+    <!-- 3 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">3</span><span class="sname">Route &amp; dispatch</span></div>
+        <span class="actor a-agent">Field Service Orchestrator</span>
+      </div>
+      <div class="sbody"><span class="ran">Field Service Orchestrator</span> packages the field brief — circuit ID, CPE, backup link, demarc, site history — and assigns <span class="ran">Ray Oak, Field Service Agent</span> with a 30‑min ETA. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+      <div class="marker watch"><span class="ic">👁</span><span><b>Sarah Rose, Customer Service Agent.</b><span class="m-chip m-watch mm">Watch</span> Monitors the autonomous dispatch from her command center to time the client update — no action unless the agent raises Inputs Required.</span></div>
+      <div class="marker onsite"><span class="ic">✓</span><span><b>Ray Oak, Field Service Agent.</b><span class="m-chip m-onsite mm">On‑site</span> Reviews the pre‑arrival job brief on FSL mobile and <b>accepts the job</b> before travelling.</span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> Ray accepts → travels to site to investigate</div>
+
+    <!-- 4 -->
+    <div class="stage human">
+      <div class="shead">
+        <div class="sleft"><span class="snum">4</span><span class="sname">Investigate on site</span></div>
+        <span class="actor a-human">Ray Oak, Field Service Agent</span>
+      </div>
+      <div class="sbody">Checks the area node first, then visits the clinic and runs guided runbooks — <span class="ran">Area Node Check, Site Edge Health, Clinic App Brownout</span>. Finds: hardware healthy, the app traffic is on a degraded route. <span class="badgewrap"><span class="m-chip m-onsite">On‑site</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> continues to mitigation — same engineer</div>
+
+    <!-- 5 -->
+    <div class="stage human">
+      <div class="shead">
+        <div class="sleft"><span class="snum">5</span><span class="sname">Mitigate</span></div>
+        <span class="actor a-human">Ray Oak, Field Service Agent</span>
+      </div>
+      <div class="sbody">Runs the <span class="ran">Failover Mitigation runbook</span> — moves only critical workflows to the backup path, pauses guest Wi‑Fi. Clinic is operating again. (Reversible, so no approval needed.) <span class="badgewrap"><span class="m-chip m-onsite">On‑site</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>field evidence</b> to diagnosis</div>
+
+    <!-- 6 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">6</span><span class="sname">Diagnose &amp; propose fix</span></div>
+        <span class="actor a-agent">Diagnostic Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Diagnostic Agent</span> interprets the field evidence, identifies the real routing fault, and proposes the <span class="ran">Permanent Route Correction</span> — then raises an approval card for IT Ops. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a proposed production change</b> for approval</div>
+
+    <!-- 7 -->
+    <div class="stage human">
+      <div class="shead">
+        <div class="sleft"><span class="snum">7</span><span class="sname">Approve</span></div>
+        <span class="actor a-human">Marcus Chen, IT Ops</span>
+      </div>
+      <div class="sbody">Reviews the evidence and <span class="ran">approves the route‑policy change</span> inside the same incident — required because it affects clinical and payment traffic across clinics. <span class="badgewrap"><span class="m-chip m-approval">Approval</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>an approved change</b> to autonomous execution</div>
+
+    <!-- 8 -->
+    <div class="stage agent">
+      <div class="shead">
+        <div class="sleft"><span class="snum">8</span><span class="sname">Execute permanent fix</span></div>
+        <span class="actor a-agent">Resolution Agent</span>
+      </div>
+      <div class="sbody"><span class="ran">Resolution Agent</span> runs the approved <span class="ran">Permanent Route Correction runbook</span> — applies the route change, tests the dental apps, monitors stability for 30 minutes, rollback armed. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a verified fix</b> to communicate</div>
+
+    <!-- 9 -->
+    <div class="stage done">
+      <div class="shead">
+        <div class="sleft"><span class="snum">9</span><span class="sname">Verify &amp; restore</span></div>
+        <span class="actor a-done">Communications Agent → Elena</span>
+      </div>
+      <div class="sbody"><span class="ran">Communications Agent</span> confirms restoration to Elena — <span class="ran">check‑in, X‑rays, payments and phones all stable, inside the 2‑hour SLA</span> — and escalates the provider issue with evidence. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+  </section>
+
+  <!-- HITL FOCUS -->
+  <section>
+    <h2>The humans in the loop — and their action mode</h2>
+    <p class="note">Everything else runs autonomously. A human enters at exactly three points, each in a defined mode from the HITL framework — to watch, to do physical work, or to govern a production change.</p>
+    <div class="trio">
+      <div class="hcard watch">
+        <div class="htop"><div class="hname">Sarah Rose</div><div class="hrole">Customer Service Agent · Stage 3, Route &amp; dispatch</div></div>
+        <div class="mtag"><span class="m-chip m-watch">Watch</span></div>
+        <div class="hrow"><b>Action</b>Monitors the autonomous dispatch from her command center; times the client update. Steps in only if the agent surfaces Inputs Required.</div>
+        <div class="hrow"><b>Why a human</b>Owns the customer relationship and the moment to communicate — but the work is reversible, so no intervention is needed.</div>
+      </div>
+      <div class="hcard onsite">
+        <div class="htop"><div class="hname">Ray Oak</div><div class="hrole">Field Service Agent · Stage 3 accept, Stages 4–5 execute</div></div>
+        <div class="mtag"><span class="m-chip m-onsite">On‑site</span></div>
+        <div class="hrow"><b>Action</b>Accepts the dispatch after reviewing the brief, goes on site, runs the diagnostic runbooks, and applies reversible failover mitigation to restore the clinic.</div>
+        <div class="hrow"><b>Why a human</b>Needs physical access and on‑the‑ground judgment the agents can't provide — including the demarc test that the backend can't run.</div>
+      </div>
+      <div class="hcard approval">
+        <div class="htop"><div class="hname">Marcus Chen</div><div class="hrole">IT Ops · Stage 7, Approve</div></div>
+        <div class="mtag"><span class="m-chip m-approval">Approval</span></div>
+        <div class="hrow"><b>Action</b>Reviews the Diagnostic Agent's evidence and approves the permanent route change before the Resolution Agent may execute it.</div>
+        <div class="hrow"><b>Why a human</b>The change is hard to reverse and affects clinical &amp; payment traffic across clinics — it needs a governed sign‑off.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    ITForce · Customer Journey · Network Connectivity (Demo Story 2) — Northstar Dental, Plano West. Agents named per the vision &amp; solution agent inventory (Intake · Diagnostic · Resolution · Field Service Orchestrator · Communications). Action modes per the HITL framework. Blue = autonomous agent · violet = human in the loop · indigo = customer · green = restored.
+  </div>
+
+</div>
+</body>
+</html>

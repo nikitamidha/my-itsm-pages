@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evolution of ITSM in the AI-Native World — Vision & Solution Approach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f7f9; --ink:#15171c; --muted:#586471; --faint:#8b919e; --line:#eaecf0;
+    --agent:#2563c9; --agent-bg:#eaf1fe; --agent-bd:#d6e4fc;
+    --human:#7c3aed; --human-bg:#f3effb; --human-bd:#e6dcfa;
+    --cust:#5b57e6; --cust-bg:#eeeef9; --cust-bd:#e0e0f4;
+    --done:#18935f; --done-bg:#e7f5ee;
+    --appr:#854f0b; --appr-bg:#faeeda; --appr-bd:#f0dcb8;
+    --watch:#185fa5; --watch-bg:#e6f1fb;
+    --onsite:#2f6b5e; --onsite-bg:#e8f2ef;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#0e1014;font-family:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;}
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  #deck{width:1280px;height:720px;position:relative;transform-origin:center center;}
+  .slide{position:absolute;inset:0;background:var(--bg);color:var(--ink);padding:52px 60px 46px;display:none;flex-direction:column;border-radius:6px;overflow:hidden;}
+  .slide.active{display:flex;}
+
+  /* chrome */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-shrink:0;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .logo{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#2563c9,#5b57e6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;}
+  .brand .bt{font-size:13px;font-weight:700;letter-spacing:-.2px;}
+  .brand .bs{font-size:11px;color:var(--faint);font-weight:600;}
+  .kicker{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--cust);}
+  h1.title{font-size:26px;font-weight:700;letter-spacing:-.6px;line-height:1.12;margin:0 0 6px;}
+  .lede{font-size:15px;line-height:1.5;color:var(--muted);max-width:1000px;margin:0 0 18px;}
+  .lede b{color:var(--ink);font-weight:600;}
+
+  .body{flex:1;min-height:0;}
+  .foot{flex-shrink:0;margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.5;}
+  .foot a{color:var(--watch);text-decoration:none;}
+
+  /* layout helpers */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;height:100%;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;height:100%;}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .col{display:flex;flex-direction:column;gap:12px;min-height:0;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .card h3{margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:-.1px;}
+  .card p{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted);}
+  .card.tl-agent{border-left:4px solid var(--agent);}
+  .card.tl-human{border-left:4px solid var(--human);}
+  .card.tl-cust{border-left:4px solid var(--cust);}
+  .card.tl-done{border-left:4px solid var(--done);}
+  .card.tl-appr{border-left:4px solid var(--appr);}
+
+  .eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);margin-bottom:6px;}
+
+  /* stat cards */
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;}
+  .stat .big{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1;color:var(--agent);}
+  .stat .lab{font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:7px;}
+  .stat sup{color:var(--watch);font-size:10px;font-weight:700;}
+
+  /* chips */
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;border-radius:7px;padding:3px 9px;border:1px solid;white-space:nowrap;}
+  .c-auto{background:var(--agent-bg);color:var(--agent);border-color:var(--agent-bd);}
+  .c-watch{background:var(--watch-bg);color:var(--watch);border-color:#cfe4f7;}
+  .c-onsite{background:var(--onsite-bg);color:var(--onsite);border-color:#d2e7e0;}
+  .c-appr{background:var(--appr-bg);color:var(--appr);border-color:var(--appr-bd);}
+  .c-vclose{background:#eaf3de;color:#3b6d11;border-color:#d8e9c2;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--faint);font-weight:800;padding:0 10px 7px;border-bottom:1px solid var(--line);}
+  td{padding:8px 10px;border-bottom:1px solid #f2f3f6;color:var(--muted);line-height:1.4;vertical-align:top;}
+  td b{color:var(--ink);font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+  td.old{color:#9aa0ab;}
+  td.new{color:var(--ink);}
+
+  /* relay arc */
+  .arc{display:flex;flex-direction:column;gap:7px;}
+  .step{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 11px;border-left:3px solid var(--agent);}
+  .step.h{border-left-color:var(--human);}
+  .step.c{border-left-color:var(--cust);}
+  .step.d{border-left-color:var(--done);}
+  .step .n{width:20px;height:20px;border-radius:6px;background:var(--ink);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step .tx{font-size:11.5px;line-height:1.35;}
+  .step .tx b{color:var(--ink);font-weight:700;}
+  .step .tx span{color:var(--muted);}
+
+  /* embed */
+  .embed{flex:1;min-height:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;position:relative;}
+  .embed iframe{width:100%;height:100%;border:0;display:block;}
+  .openbtn{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#fff;background:var(--agent);border-radius:9px;padding:8px 14px;text-decoration:none;}
+  .openbtn.alt{background:var(--ink);}
+  .openbtn.ghost{background:#fff;color:var(--agent);border:1.5px solid var(--agent-bd);}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;}
+  .legend .k{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+
+  .ph{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:2px dashed #c7cdd6;border-radius:16px;background:repeating-linear-gradient(45deg,#fbfcfd,#fbfcfd 14px,#f4f6f9 14px,#f4f6f9 28px);}
+  .ph .pt{font-size:18px;font-weight:800;color:#6b7686;letter-spacing:-.3px;}
+  .ph .ps{font-size:13px;color:var(--faint);margin-top:8px;max-width:620px;line-height:1.55;}
+  .ph .ptag{margin-top:16px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#fff;background:#9aa6b4;border-radius:20px;padding:6px 14px;}
+
+  /* compact cards (slide 3) */
+  .card.compact{padding:12px 15px;}
+  .card.compact h3{font-size:12.5px;margin-bottom:5px;}
+  .card.compact p{font-size:11.5px;line-height:1.45;}
+
+  /* outcome four-up (wow) */
+  .fourup{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;min-height:0;}
+  .ucard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 18px;display:flex;flex-direction:column;min-height:0;}
+  .uhead{display:flex;align-items:center;gap:11px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .uav{width:34px;height:34px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .uname{font-size:14px;font-weight:700;}
+  .uurl{font-size:11px;color:var(--faint);margin-top:1px;}
+  .upill{margin-left:auto;font-size:11px;font-weight:700;color:var(--done);background:var(--done-bg);border-radius:20px;padding:4px 11px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .upill .d{width:7px;height:7px;border-radius:50%;background:var(--done);display:inline-block;}
+  .upill.by{color:var(--muted);background:#eef0f3;}
+  .upill.by .d{background:#9aa6b4;}
+  .urows{flex:1;padding-top:3px;}
+  .urow{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:13px;}
+  .urow .l{display:flex;align-items:center;gap:9px;color:var(--muted);}
+  .urow .l .d{width:8px;height:8px;border-radius:50%;background:var(--done);flex-shrink:0;}
+  .urow .l .d.mute{background:#b6bcc6;}
+  .urow .v{font-weight:700;color:var(--ink);}
+  .ufoot{padding-top:8px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);}
+  .land{background:#15171c;border-radius:14px;padding:15px 22px;flex-shrink:0;}
+  .land .lk{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#a9b0ff;margin-bottom:6px;}
+  .land .lt{font-size:13.5px;line-height:1.5;color:#fff;}
+  .land .lt b{color:#dfe3ff;}
+
+  /* org chart legend column (slide 5) */
+  .lgcol{width:216px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;}
+  .lgcol .lgk{display:flex;align-items:flex-start;gap:9px;font-size:11.5px;color:var(--muted);line-height:1.35;}
+  .lgcol .sw{width:16px;height:16px;border:1.5px solid;border-radius:4px;flex-shrink:0;margin-top:1px;}
+
+  /* agent list + persona rows (slide 6) */
+  .agt{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--faint);margin:10px 0 5px;}
+  .agt.first{margin-top:2px;}
+  .ag{display:inline-block;font-size:10.5px;font-weight:600;color:var(--agent);background:var(--agent-bg);border:1px solid var(--agent-bd);border-radius:6px;padding:3px 7px;margin:0 4px 5px 0;}
+  .ag.dom{color:var(--done);background:var(--done-bg);border-color:#cfe9da;}
+  .prow{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 15px;border-left:4px solid var(--human);}
+  .prow .pav{width:42px;height:42px;border-radius:50%;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .prow .pmid{flex:1;min-width:0;}
+  .prow .pn{font-size:13.5px;font-weight:700;}
+  .prow .pn .prole{font-size:11px;font-weight:600;color:var(--faint);}
+  .prow .pshift{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .prow .pshift b{color:var(--ink);font-weight:700;}
+  .prow .pshift .old{color:#a3aab4;}
+  .prow .pchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+  .pav.sm{width:30px;height:30px;font-size:11px;}
+  .phead{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+
+  /* contract mini-table (slide 4) */
+  .ctab{width:100%;border-collapse:collapse;font-size:11px;}
+  .ctab td{padding:5px 0;border-bottom:1px solid #f2f3f6;color:var(--muted);line-height:1.3;vertical-align:top;}
+  .ctab td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;padding-right:10px;}
+  .ctab tr:last-child td{border-bottom:none;}
+
+  /* pillar tags + mini dashboards (slide 11) */
+  .pillars{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px;}
+  .pill-tag{font-size:10px;font-weight:700;border-radius:6px;padding:3px 8px;border:1px solid;}
+  .mini{margin-top:10px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fcfcfd;}
+  .mini .mbar{display:flex;align-items:center;gap:6px;padding:6px 9px;background:#f1f3f6;border-bottom:1px solid var(--line);font-size:9.5px;color:var(--faint);font-weight:700;letter-spacing:.2px;}
+  .mini .mdot{width:7px;height:7px;border-radius:50%;background:#cdd3db;flex-shrink:0;}
+  .mini .mbody{padding:9px 10px;display:flex;flex-direction:column;gap:6px;}
+  .mrow2{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;}
+  .mrow2 .ml{color:var(--muted);display:flex;align-items:center;gap:7px;}
+  .mrow2 .ml .gd{width:7px;height:7px;border-radius:50%;background:var(--done);flex-shrink:0;}
+  .mrow2 .mv{font-weight:700;color:var(--ink);}
+  .mcardlet{background:#fff;border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:10.5px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;}
+  .mcardlet .mtag{font-size:9.5px;font-weight:700;border-radius:5px;padding:2px 7px;}
+  /* real dashboard screenshot embeds (slide 7) */
+  .shot{display:block;margin-top:10px;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:1;min-height:0;position:relative;}
+  .shot img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#eef1f5;}
+  .shot .zoom{position:absolute;bottom:7px;right:7px;background:rgba(21,23,28,.82);color:#fff;font-size:9.5px;font-weight:700;border-radius:6px;padding:3px 8px;letter-spacing:.2px;}
+
+  /* agenda list (title slide) */
+  .agenda{list-style:none;margin:24px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:11px 36px;max-width:780px;}
+  .agenda li{display:flex;align-items:center;gap:12px;font-size:15.5px;color:#fff;font-weight:600;}
+  .agenda li .an{width:23px;height:23px;border-radius:6px;background:rgba(155,180,255,.16);color:#9db4ff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  /* full-width contract grid (workforce slide) */
+  .cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px 22px;}
+  .citem{font-size:12px;line-height:1.35;border-left:2px solid var(--human-bd);padding-left:11px;}
+  .citem b{display:block;color:var(--ink);font-weight:700;}
+  .citem span{color:var(--muted);font-size:11px;}
+
+  /* tight table (slide 6 before/after) */
+  .t-tight td{padding:5px 10px;font-size:11px;}
+  .t-tight th{padding:0 10px 5px;}
+  /* mini persona strip (slide 6) */
+  .pmini{display:flex;align-items:center;gap:9px;}
+  .pmini .pa{width:30px;height:30px;border-radius:50%;overflow:hidden;flex-shrink:0;display:block;}
+  .pmini .pt2{font-size:11px;line-height:1.25;}
+  .pmini .pt2 b{font-size:12px;color:var(--ink);}
+  .pmini .pt2 span{color:var(--faint);}
+
+  /* roadmap cards */
+  .rmgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;height:100%;align-content:center;align-items:start;}
+  .rmcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .rmhead{padding:16px 18px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+  .rmbadge{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.22);border-radius:20px;padding:3px 10px;}
+  .rmtitle{color:#fff;font-size:18px;font-weight:700;line-height:1.2;margin:0;}
+  .rmbody{padding:15px 18px 18px;flex:1;display:flex;flex-direction:column;gap:12px;}
+  .rmobj{font-size:13px;font-weight:700;margin:0;}
+  .rmdiv{height:1px;background:var(--line);}
+  .rmcaps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .rmcaps li{display:flex;gap:9px;font-size:12.5px;color:var(--muted);line-height:1.4;}
+  .rmcaps li::before{content:"";flex-shrink:0;width:6px;height:6px;border-radius:50%;margin-top:6px;background:var(--bullet,var(--muted));}
+
+  /* appendix link cards */
+  .aplink{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink);text-decoration:none;font-weight:600;padding:9px 0;border-bottom:1px solid var(--line);}
+  .aplink:last-child{border-bottom:none;}
+  .aplink .ai-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+  .aplink .ar{margin-left:auto;color:var(--agent);font-weight:700;}
+  .aplink:hover .ar{text-decoration:underline;}
+  .aptype{font-size:9.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.3px;margin-left:auto;}
+
+  /* title slide */
+  .title-slide{justify-content:center;align-items:flex-start;background:linear-gradient(135deg,#101830 0%,#1b2447 55%,#3b2d6b 100%);color:#fff;padding:0 80px;}
+  .title-slide .kicker{color:#9db4ff;}
+  .title-slide h1{font-size:46px;font-weight:800;letter-spacing:-1.4px;line-height:1.05;margin:14px 0 18px;max-width:980px;}
+  .title-slide .sub{font-size:18px;color:#c4cce6;line-height:1.5;max-width:820px;}
+  .title-slide .ns{margin-top:26px;font-size:14px;color:#aab6dd;border-left:3px solid #5b73c7;padding-left:16px;max-width:760px;line-height:1.55;}
+  .title-slide .tg{position:absolute;bottom:46px;left:80px;font-size:13px;color:#8a96bf;font-weight:600;letter-spacing:.3px;}
+
+  /* nav */
+  #nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;background:rgba(20,22,28,.82);backdrop-filter:blur(8px);border-radius:30px;padding:7px 16px;z-index:50;}
+  #nav button{background:none;border:0;color:#cfd3da;font-size:18px;cursor:pointer;line-height:1;padding:2px 6px;}
+  #nav button:hover{color:#fff;}
+  #counter{color:#cfd3da;font-size:12px;font-weight:600;min-width:54px;text-align:center;letter-spacing:.4px;}
+  #help{position:fixed;bottom:16px;right:18px;color:#5a6170;font-size:11px;z-index:50;}
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+
+<!-- ============ S1 TITLE ============ -->
+<section class="slide title-slide active">
+  <div class="kicker">TechGuard · ITForce · Salesforce ITSM Case Study</div>
+  <h1>Evolution of ITSM in the AI-Native World</h1>
+  <div class="sub">Vision &amp; Solution Approach</div>
+  <ol class="agenda">
+    <li><span class="an">1</span>Vision &amp; solution approach</li>
+    <li><span class="an">2</span>The hybrid agent workforce &amp; new org chart</li>
+    <li><span class="an">3</span>Personas, HITL &amp; dashboards</li>
+    <li><span class="an">4</span>Customer journey maps &amp; demo walkthroughs</li>
+    <li><span class="an">5</span>Roadmap</li>
+    <li><span class="an">6</span>Architecture &amp; technical considerations</li>
+  </ol>
+  <div class="tg">ITForce · a 3,000-person MSP · 15,000 B2B clients · 2M+ managed endpoints · CCTV · Web hosting · Network connectivity</div>
+</section>
+
+<!-- ============ S2 VISION + TRENDS ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Vision & where ITSM is headed</div></div></div>
+    <div class="kicker">01 · Vision & Industry Trends</div>
+  </div>
+  <h1 class="title">The shift is not better ticketing — it's resolving issues before the customer notices</h1>
+  <p class="lede">Traditional ITSM starts <b>after</b> customer pain: report, triage, diagnose, dispatch, recover. AI-native ITSM starts <b>earlier</b>: agents monitor signals, detect anomalies, diagnose causes, attempt reversible fixes, assemble evidence, and escalate only when judgment, risk, or physical work demands it.</p>
+  <div class="body grid2">
+    <div class="col">
+      <div class="card tl-agent">
+        <div class="eyebrow">The structural move</div>
+        <h3>From episodic & ticket-led → always-on, predictive, preventive</h3>
+        <p>The old world is episodic, ticket-led, and human-processed. The new world is always-on and governed by humans where judgment, risk, trust, security, or customer context matters.</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">The real constraint</div>
+        <h3>Agentic AI has crossed from theory to execution — but trust gates adoption</h3>
+        <p>Everyone now sells a "digital workforce." The differentiating question is no longer <i>can</i> agents act, but <b>what will enterprises let agents do?</b></p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="grid2" style="height:auto;gap:12px;">
+        <div class="stat"><div class="big">40%</div><div class="lab">of enterprise apps expected to feature task-specific AI agents by end of 2026<sup>1</sup></div></div>
+        <div class="stat"><div class="big">17%</div><div class="lab">of organizations have actually deployed AI agents today<sup>2</sup></div></div>
+      </div>
+      <div class="card tl-human">
+        <div class="eyebrow">Competitive frame</div>
+        <h3>Governed workflow vs. reasoning in context</h3>
+        <p><b>ServiceNow</b> — governed workflow execution: powerful for repeatable work, less flexible when incidents cross domains.<sup>3</sup> &nbsp;<b>Salesforce / Agentforce</b> — agents that reason, act, observe and adapt in the same environment as customer, service, field and collaboration context.<sup>4</sup> Real incidents rarely stay inside one workflow.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    Sources: <sup>1</sup> Gartner — task-specific AI agents in 40% of enterprise apps by 2026 · <sup>2</sup> Gartner Hype Cycle for Agentic AI — 17% deployed · <sup>3</sup> ServiceNow — Autonomous Workforce launch · <sup>4</sup> Salesforce — Agentforce.
+  </div>
+</section>
+
+<!-- ============ S3 SOLUTION APPROACH ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">First principles & product outlook</div></div></div>
+    <div class="kicker">02 · Principles & Product Outlook</div>
+  </div>
+  <h1 class="title" style="margin-bottom:3px;">First principles that define the product</h1>
+  <p class="lede" style="margin-bottom:9px;">Agents don't just do the repeatable work — <b>agents do the work.</b> Humans manage the moments and judgment that matter. Each principle is a <b>design constraint</b> that makes that division safe.</p>
+  <div class="body" style="display:flex;flex-direction:column;gap:11px;">
+    <div class="grid3" style="gap:9px;">
+    <div class="card compact tl-agent"><h3>① Proactivity is designed in</h3><p>If the system sees risk first and does not act, the product failed. Monitoring is the front door of service.</p></div>
+    <div class="card compact tl-human"><h3>② Humans manage the AI workforce</h3><p>CSAs don't chase status, IT Ops don't repeat safe diagnostics, Field Techs don't arrive blind.</p></div>
+    <div class="card compact tl-appr"><h3>③ Confidence & risk drive escalation</h3><p>Escalate on uncertainty, irreversibility, blast radius, compliance exposure, and relationship risk.</p></div>
+    <div class="card compact tl-done"><h3>④ Documentation creates the learning loop</h3><p>A structured trail of observations, actions, confidence, approvals, changes, and messages — auditable and reusable.</p></div>
+    <div class="card compact tl-cust"><h3>⑤ Governance is the moat</h3><p>Autonomy starts narrow and reversible, then expands only with proven performance. Every action is logged and overridable.</p></div>
+    <div class="card compact"><h3>⑥ The unit of design is the client relationship</h3><p>SLA tier, tone, risk tolerance, site criticality, and end-customer impact shape every agent decision.</p></div>
+    </div>
+    <div class="card tl-agent" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:13px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">
+        <div class="eyebrow" style="color:var(--agent);margin:0;">Product outlook · an AI workforce operations center</div>
+        <a class="openbtn" href="Hybrid%20ITSM%20Workforce.html" target="_blank" style="padding:11px 20px;font-size:13.5px;box-shadow:0 4px 14px rgba(37,99,201,.32);">View the hybrid workforce org chart ↗</a>
+      </div>
+      <h3 style="font-size:18px;line-height:1.3;">The design question is: which scenarios can agents safely own end to end — and where must a human enter the loop?</h3>
+      <div class="grid3" style="gap:14px;">
+        <div style="border-left:3px solid var(--human);padding-left:12px;"><b style="font-size:12.5px;">Humans manage the moments that matter</b><div style="font-size:11.5px;color:var(--muted);margin-top:3px;">Risk, trust, exceptions, relationships, performance, and autonomy calibration.</div></div>
+        <div style="border-left:3px solid var(--agent);padding-left:12px;"><b style="font-size:12.5px;">Agents do the operational work</b><div style="font-size:11.5px;color:var(--muted);margin-top:3px;">Not just repeatable — also the thinking work: sensing, diagnosis, correlation, drafting.</div></div>
+        <div style="border-left:3px solid var(--done);padding-left:12px;"><b style="font-size:12.5px;">The loop compounds</b><div style="font-size:11.5px;color:var(--muted);margin-top:3px;">Every incident leaves a structured trace that sharpens detection over time.</div></div>
+      </div>
+      <p style="font-size:12px;line-height:1.5;color:var(--muted);margin:0;">Human-in-the-loop is not a safety net bolted on — it is the management system that lets autonomy <b style="color:var(--ink);">scale</b>: narrow and reversible first, expanding only with proven performance.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S5 ITSM AGENT WORKFORCE ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">ITSM agent workforce</div></div></div>
+    <div class="kicker">03 · ITSM Agent Workforce</div>
+  </div>
+  <h1 class="title">ITSM agent workforce in two layers — each agent is a role, not a feature</h1>
+  <p class="lede">Agents do the operational work; humans manage the moments that matter. The workforce splits into a shared <b>platform layer</b> and a <b>specialist (domain) layer</b> — and every agent runs to the same contract.</p>
+  <div class="body col" style="gap:12px;">
+    <div class="grid2" style="flex:1;min-height:0;">
+      <div class="card tl-agent" style="display:flex;flex-direction:column;">
+        <div class="eyebrow" style="color:var(--agent);">Platform layer · shared agents</div>
+        <h3 style="margin-bottom:9px;">Run the whole fleet, before a client reports pain</h3>
+        <p style="margin-bottom:10px;"><b style="color:var(--ink);">Proactive:</b> Monitoring &amp; Detection · Asset Discovery &amp; Inventory · Preventive Maintenance · Impact &amp; Correlation.</p>
+        <p><b style="color:var(--ink);">Reactive:</b> Scoping &amp; Triage · Router · Field Dispatch · Communication — the same shape on every ticket across all three service lines.</p>
+      </div>
+      <div class="card tl-done" style="display:flex;flex-direction:column;">
+        <div class="eyebrow" style="color:var(--done);">Specialist layer · domain agents</div>
+        <h3 style="margin-bottom:9px;">Adapt the pattern to each service line</h3>
+        <p style="margin-bottom:10px;"><b style="color:var(--ink);">CCTV:</b> Footage Integrity · Diagnostic. &nbsp;<b style="color:var(--ink);">Web hosting:</b> Deployment Watch · Resolution.</p>
+        <p><b style="color:var(--ink);">Network:</b> Baseline Monitor · Diagnostic — circuit baselines, ISP evidence, remote fixes, and field handoff.</p>
+      </div>
+    </div>
+    <div class="card tl-human">
+      <div class="eyebrow" style="color:var(--human);margin-bottom:9px;">Each agent is a managed worker — the contract every agent carries</div>
+      <div class="cgrid">
+        <div class="citem"><b>Job description</b><span>the outcome it owns</span></div>
+        <div class="citem"><b>Allowed tools</b><span>permissioned, scoped actions</span></div>
+        <div class="citem"><b>Memory + KPIs</b><span>context + a metric tied to avoided pain</span></div>
+        <div class="citem"><b>Confidence thresholds</b><span>when to act vs. escalate</span></div>
+        <div class="citem"><b>Escalation + manager</b><span>who it answers to</span></div>
+        <div class="citem"><b>Audit trail</b><span>every action logged &amp; overridable</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">KPIs tie to avoided pain — customer-discovered incident rate, prevented-failure rate, autonomous recovery rate, first-visit resolution.</div>
+</section>
+
+<!-- ============ S6 THE SHIFT (personas + paradigm) ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Agent inventory</div></div></div>
+    <div class="kicker">04 · Agent Inventory</div>
+  </div>
+  <h1 class="title" style="margin-bottom:3px;">The agent inventory — every agent is a managed role</h1>
+  <p class="lede" style="margin-bottom:9px;">Fourteen agents across the platform and specialist layers. Each has the work it <b>owns</b>, the <b>trigger</b> that brings a human into the loop, and a <b>KPI</b> tied to avoided pain.</p>
+  <div class="body col" style="gap:10px;">
+    <div class="card" style="padding:6px 18px;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;">
+      <table class="t-tight">
+        <tr><th>Agent</th><th>Owns</th><th>Human trigger</th><th>KPI</th></tr>
+        <tr><td colspan="4" style="background:#eef2f8;font-weight:800;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--agent);padding:4px 10px;">Platform layer · shared agents</td></tr>
+        <tr><td><b>Monitoring &amp; Detection</b></td><td>Detects anomalies, opens incidents</td><td class="old">Novel signals, ambiguous severity</td><td class="new">Customer-discovered incident rate</td></tr>
+        <tr><td><b>Asset Discovery &amp; Inventory</b></td><td>Reconciles new/missing/changed assets</td><td class="old">Ownership or security ambiguity</td><td class="new">Asset registry completeness</td></tr>
+        <tr><td><b>Preventive Maintenance</b></td><td>Schedules updates, checks, inspections</td><td class="old">Fleet push, window conflict</td><td class="new">Prevented-failure rate</td></tr>
+        <tr><td><b>Impact &amp; Correlation</b></td><td>Clusters related incidents</td><td class="old">Low confidence, major impact</td><td class="new">Duplicate incident reduction</td></tr>
+        <tr><td><b>Scoping &amp; Triage</b></td><td>Structures incidents (no diagnosis)</td><td class="old">Ambiguous service line / context</td><td class="new">Triage completeness</td></tr>
+        <tr><td><b>Router</b></td><td>Routes to the right agent or human</td><td class="old">Low-confidence / novel routing</td><td class="new">Correct routing rate</td></tr>
+        <tr><td><b>Field Dispatch</b></td><td>Creates work order + technician brief</td><td class="old">Dispatch approval, parts uncertainty</td><td class="new">First-visit resolution</td></tr>
+        <tr><td><b>Communication</b></td><td>Drafts tier-calibrated updates</td><td class="old">Outbound B2B comms, legal notice</td><td class="new">Time to customer notification</td></tr>
+        <tr><td colspan="4" style="background:#eaf5ee;font-weight:800;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--done);padding:4px 10px;">Specialist layer · domain agents</td></tr>
+        <tr><td><b>CCTV · Footage Integrity</b></td><td>Confirms cameras are writing footage</td><td class="old">Footage gap, storage/compliance risk</td><td class="new">Footage-gap prevention</td></tr>
+        <tr><td><b>CCTV · Diagnostic</b></td><td>Remote fix vs. dispatch + parts</td><td class="old">Failed recovery, uncertain cause</td><td class="new">Autonomous recovery rate</td></tr>
+        <tr><td><b>Web · Deployment Watch</b></td><td>Correlates error spikes with deploys</td><td class="old">Rollback / production risk</td><td class="new">Regression detection time</td></tr>
+        <tr><td><b>Web · Hosting Resolution</b></td><td>Classifies failure, executes/stages fix</td><td class="old">Rollback, DB/schema, malware</td><td class="new">Autonomous resolution rate</td></tr>
+        <tr><td><b>Network · Baseline Monitor</b></td><td>Detects brownouts from baselines</td><td class="old">Uncertain customer impact</td><td class="new">Brownout accuracy</td></tr>
+        <tr><td><b>Network · Diagnostic</b></td><td>Classifies fault, builds ISP evidence</td><td class="old">ISP escalation, demarc, failover</td><td class="new">Fault isolation time</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="foot">Platform agents are shared across all 15,000 clients; specialist agents adapt the same pattern to CCTV, web hosting, and network connectivity.</div>
+</section>
+
+<!-- ============ S9 HITL FRAMEWORK ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Human-in-the-loop framework</div></div></div>
+    <div class="kicker">05 · HITL & Action Modes</div>
+  </div>
+  <h1 class="title">Human-in-the-loop is the management system, not a fallback</h1>
+  <p class="lede">Agents act autonomously by default. A human enters in a <b>defined action mode</b> — triggered by confidence, reversibility, blast radius, compliance exposure, or relationship risk.</p>
+  <div class="body col" style="gap:11px;">
+    <div class="grid4">
+      <div class="card compact tl-agent"><span class="chip c-auto">Autonomous</span><p style="margin-top:8px;">Agent senses, diagnoses, runs a reversible runbook and verifies — no human. High confidence, low blast radius.</p></div>
+      <div class="card compact" style="border-left:4px solid var(--watch);"><span class="chip c-watch">Watch</span><p style="margin-top:8px;">Human monitors autonomous work to time the client update; acts only if the agent flags it.</p></div>
+      <div class="card compact" style="border-left:4px solid #3835a6;"><span class="chip" style="background:#eef0fb;color:#3835a6;border-color:#dcdef4;">Inputs Required</span><p style="margin-top:8px;">Agent pauses and asks the human for a missing decision, fact, or access it can't obtain itself.</p></div>
+      <div class="card compact" style="border-left:4px solid var(--onsite);"><span class="chip c-onsite">On-site</span><p style="margin-top:8px;">Physical access & judgment agents can't provide — e.g. the demarc test the backend can't run.</p></div>
+    </div>
+    <div class="grid4">
+      <div class="card compact tl-appr"><span class="chip c-appr">Approval</span><p style="margin-top:8px;">Human governs a hard-to-reverse or high-blast-radius change before an agent may execute it.</p></div>
+      <div class="card compact" style="border-left:4px solid #b4322f;"><span class="chip" style="background:#fdeeee;color:#b4322f;border-color:#f4d2d1;">Escalate / Cluster</span><p style="margin-top:8px;">Novel signals, low-confidence cases, or cross-client clusters routed to the right human or specialist.</p></div>
+      <div class="card compact tl-done"><span class="chip c-vclose">Verify &amp; Close</span><p style="margin-top:8px;">Accountable human reviews the resolved incident, approves compliance-sensitive comms, and signs off.</p></div>
+      <div class="card compact" style="border-left:4px solid #2f6b5e;"><span class="chip" style="background:#eaf3ef;color:#2f6b5e;border-color:#d2e7e0;">Calibrate &amp; Tune</span><p style="margin-top:8px;">Humans fine-tune agents and adjust autonomy thresholds over time as performance is proven.</p></div>
+    </div>
+  </div>
+  <div class="foot"><b style="color:var(--human);">Sarah</b> → Watch · Inputs Required · Approval · Verify &amp; Close &nbsp;|&nbsp; <b style="color:var(--appr);">Marcus</b> → Approval · Escalate · Calibrate &nbsp;|&nbsp; <b style="color:var(--onsite);">Ray</b> → On-site. One incident may touch zero, one, or several modes depending on risk.</div>
+</section>
+
+<!-- ============ S11 DASHBOARDS ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Persona dashboards</div></div></div>
+    <div class="kicker">06 · The Three Dashboards</div>
+  </div>
+  <h1 class="title" style="margin-bottom:3px;">Each dashboard is shaped by its persona's pillars</h1>
+  <p class="lede" style="margin-bottom:10px;">Not three views of the same queue — each surfaces exactly what its manager is accountable for, and hides the work the agents already handle.</p>
+  <div class="body grid3">
+    <div class="card compact tl-human" style="display:flex;flex-direction:column;">
+      <div class="phead"><span class="pav sm" style="overflow:hidden;padding:0;background:none;"><svg viewBox="0 0 80 80" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><rect width="80" height="80" fill="#efe9fb"/><path d="M9 80 V71 C9 59 23 53 40 53 C57 53 71 59 71 71 V80 Z" fill="#6d5ae0"/><rect x="35" y="45" width="10" height="13" rx="5" fill="#6f4a35"/><circle cx="40" cy="33" r="20" fill="#241813"/><ellipse cx="40" cy="35" rx="13.5" ry="15.5" fill="#7d5640"/><path d="M26 30 C25 17 55 17 54 30 C54 25 50 22 40 22 C30 22 26 25 26 30 Z" fill="#241813"/><ellipse cx="34.5" cy="35" rx="1.7" ry="2" fill="#2a1c14"/><ellipse cx="45.5" cy="35" rx="1.7" ry="2" fill="#2a1c14"/><path d="M37 41.5 Q40 43.5 43 41.5" stroke="#5a3a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></span><div><div class="pn">Sarah Rose</div><div class="prole">Customer Service Agent</div></div></div>
+      <div class="pillars">
+        <span class="pill-tag" style="background:var(--human-bg);color:var(--human);border-color:var(--human-bd);">Relationship building</span>
+        <span class="pill-tag" style="background:var(--human-bg);color:var(--human);border-color:var(--human-bd);">Trust</span>
+        <span class="pill-tag" style="background:var(--human-bg);color:var(--human);border-color:var(--human-bd);">Coordination</span>
+      </div>
+      <a class="shot" href="Sarah%20-%20CSA.png" target="_blank"><img src="Sarah%20-%20CSA.png" alt="Sarah Rose CSA dashboard"><span class="zoom">Open ↗</span></a>
+    </div>
+    <div class="card compact tl-appr" style="display:flex;flex-direction:column;">
+      <div class="phead"><span class="pav sm" style="overflow:hidden;padding:0;background:none;"><svg viewBox="0 0 80 80" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><rect width="80" height="80" fill="#f7ecd6"/><path d="M9 80 V71 C9 59 23 53 40 53 C57 53 71 59 71 71 V80 Z" fill="#22252c"/><rect x="35" y="45" width="10" height="13" rx="5" fill="#d99e6f"/><ellipse cx="40" cy="34" rx="13.5" ry="15.5" fill="#e8b487"/><path d="M25 31 C25 18 55 18 55 31 C55 24 52 21 40 21 C28 21 25 25 25 31 Z" fill="#1a1410"/><path d="M25 31 C26 26 33 24.5 41 24.5 L41 21.5 C30 21.5 26 26 25 31 Z" fill="#1a1410"/><ellipse cx="34.5" cy="34" rx="1.7" ry="1.9" fill="#241810"/><ellipse cx="45.5" cy="34" rx="1.7" ry="1.9" fill="#241810"/><path d="M37 41 Q40 42.4 43 41" stroke="#9c6a44" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></span><div><div class="pn">Marcus Chen</div><div class="prole">IT Operations</div></div></div>
+      <div class="pillars">
+        <span class="pill-tag" style="background:var(--appr-bg);color:var(--appr);border-color:var(--appr-bd);">Expertise</span>
+        <span class="pill-tag" style="background:var(--appr-bg);color:var(--appr);border-color:var(--appr-bd);">Technical decisions</span>
+        <span class="pill-tag" style="background:var(--appr-bg);color:var(--appr);border-color:var(--appr-bd);">Governance</span>
+      </div>
+      <a class="shot" href="Marcus.jpeg" target="_blank"><img src="Marcus.jpeg" alt="Marcus Chen IT Ops dashboard"><span class="zoom">Open ↗</span></a>
+    </div>
+    <div class="card compact tl-done" style="border-left-color:var(--onsite);display:flex;flex-direction:column;">
+      <div class="phead"><span class="pav sm" style="overflow:hidden;padding:0;background:none;"><svg viewBox="0 0 80 80" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><rect width="80" height="80" fill="#e6f1ec"/><path d="M9 80 V71 C9 59 23 53 40 53 C57 53 71 59 71 71 V80 Z" fill="#2f6b5e"/><rect x="35" y="45" width="10" height="13" rx="5" fill="#5a3620"/><ellipse cx="40" cy="34" rx="13.5" ry="15.5" fill="#7a4e2e"/><path d="M26 29 C26 17 54 17 54 29 C54 23 50 20 40 20 C30 20 26 23 26 29 Z" fill="#15100c"/><ellipse cx="34.5" cy="34" rx="1.7" ry="2" fill="#241712"/><ellipse cx="45.5" cy="34" rx="1.7" ry="2" fill="#241712"/><path d="M37 41.5 Q40 43.5 43 41.5" stroke="#3a241a" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></span><div><div class="pn">Ray Oak</div><div class="prole">Field Service</div></div></div>
+      <div class="pillars">
+        <span class="pill-tag" style="background:var(--onsite-bg);color:var(--onsite);border-color:#d2e7e0;">On-site work</span>
+        <span class="pill-tag" style="background:var(--onsite-bg);color:var(--onsite);border-color:#d2e7e0;">Backend coordination</span>
+      </div>
+      <a class="shot" href="FSA-%20Ray%20Oak%20view.png" target="_blank"><img src="FSA-%20Ray%20Oak%20view.png" alt="Ray Oak field service dashboard"><span class="zoom">Open ↗</span></a>
+    </div>
+  </div>
+  <div class="foot">A dashboard shows a manager the <b>decisions only they can make</b>, with the agents' work pre-assembled as evidence — never a raw ticket queue to process.</div>
+</section>
+
+<!-- ============ S12 TWO DEMO STORIES ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Demo stories</div></div></div>
+    <div class="kicker">07 · Demo Stories</div>
+  </div>
+  <h1 class="title" style="margin-bottom:4px;">Two customers, two stories, one unified workforce — journey and walkthrough</h1>
+  <p class="lede" style="margin-bottom:10px;">The same workforce meets two very different incidents. Below, each customer's journey mapped end to end — what ran, in order, and where a human entered.</p>
+  <div class="body grid2" style="gap:16px;">
+    <div class="col" style="gap:8px;">
+      <div class="eyebrow" style="color:var(--done);">Story 1 · Proactive CCTV · Atlas Logistics</div>
+      <div class="embed" style="flex:1;"><iframe src="Demo%20Story%201%20-%20Customer%20Journey%20Mapping.html" title="Story 1 journey map"></iframe></div>
+      <a class="openbtn ghost" href="Demo%20Story%201%20-%20Customer%20Journey%20Mapping.html" target="_blank">Open Story 1 journey ↗</a>
+    </div>
+    <div class="col" style="gap:8px;">
+      <div class="eyebrow" style="color:var(--agent);">Story 2 · Reactive Network · Northstar Dental</div>
+      <div class="embed" style="flex:1;"><iframe src="Demo%20Story%202%20-%20Customer%20Journey%20Mapping.html" title="Story 2 journey map"></iframe></div>
+      <a class="openbtn ghost" href="Demo%20Story%202%20-%20Customer%20Journey%20Mapping.html" target="_blank">Open Story 2 journey ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S13 DEMO STORY 1 ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Story 1 — Proactive CCTV resolution</div></div></div>
+    <div class="kicker">08 · Demo Story 1</div>
+  </div>
+  <h1 class="title" style="margin-bottom:4px;">Story 1 — CCTV footage gap, fixed before the customer knows</h1>
+  <p class="lede" style="margin-bottom:10px;">The operational trap: <b>uptime is green, compliance is red.</b> Legacy monitoring watches heartbeat and sees nothing wrong; ITForce monitors whether footage is actually committing to storage.</p>
+  <div class="body grid2" style="grid-template-columns:0.95fr 1.05fr;">
+    <div class="col" style="gap:6px;overflow:hidden;">
+      <div class="eyebrow">Customer journey — 9-stage arc (Atlas Logistics)</div>
+      <div class="arc">
+        <div class="step"><span class="n">1</span><span class="tx"><b>Monitor &amp; detect</b> <span>— C-07 online, footage write 11 min stale</span></span></div>
+        <div class="step"><span class="n">2</span><span class="tx"><b>Triage &amp; scope</b> <span>— P1, compliance-critical zone</span></span></div>
+        <div class="step"><span class="n">3</span><span class="tx"><b>Troubleshoot</b> <span>— stuck stream on retention rotation · 93%</span></span></div>
+        <div class="step"><span class="n">4</span><span class="tx"><b>Run remote fix</b> <span>— recovery runbook, C-07 only</span></span></div>
+        <div class="step"><span class="n">5</span><span class="tx"><b>Verify recovery</b> <span>— confirms footage writing again</span></span></div>
+        <div class="step"><span class="n">6</span><span class="tx"><b>Draft security comms</b> <span>— 23-min gap, queues for approval</span></span></div>
+        <div class="step h"><span class="n">7</span><span class="tx"><b>Sarah — approve &amp; send</b> <span>· Approval + Verify &amp; Close</span></span></div>
+        <div class="step c"><span class="n">8</span><span class="tx"><b>Customer notified</b> <span>— Tom finds the disclosure, never filed a ticket</span></span></div>
+        <div class="step d"><span class="n">9</span><span class="tx"><b>Prevention &amp; learning</b> <span>— checks the other 5 zone cameras</span></span></div>
+      </div>
+    </div>
+    <div class="col" style="gap:8px;">
+      <div class="embed"><iframe src="Demo%20Story%201%20-%20CCTV%20Prototype.html" title="Demo Story 1 prototype"></iframe></div>
+      <div class="btnrow">
+        <a class="openbtn" href="Demo%20Story%201%20-%20CCTV%20Prototype.html" target="_blank">▶ Open clickable prototype ↗</a>
+        <a class="openbtn ghost" href="Demo%20Story%201%20-%20Customer%20Journey%20Mapping.html" target="_blank">Open full journey map ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S13b DEMO STORY 1 — OUTCOME (WOW) ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Story 1 — the outcome</div></div></div>
+    <div class="kicker">CCTV-4421 · Footage integrity — Resolved 08:12 · Fixed before the customer knew</div>
+  </div>
+  <h1 class="title" style="margin-bottom:14px;">One silent failure, fixed overnight — one human, only for the trust moment</h1>
+  <div class="body" style="display:flex;flex-direction:column;gap:14px;">
+    <div class="fourup" style="flex:1;">
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#2f6b5e;">TA</div>
+          <div><div class="uname">Tom Avery · Client</div><div class="uurl">portal.techguard.io</div></div>
+          <span class="upill"><span class="d"></span>Resolved</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d"></span>Camera C-07 footage</span><span class="v">Restored</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Compliance disclosure</span><span class="v">Received</span></div>
+          <div class="urow"><span class="l"><span class="d mute"></span>Ticket filed</span><span class="v">None</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Audit record</span><span class="v">23-min gap logged</span></div>
+        </div>
+        <div class="ufoot">Never knew it broke</div>
+      </div>
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#2563c9;">AI</div>
+          <div><div class="uname">Diagnostic + Resolution · Agents</div><div class="uurl">itforce/agents</div></div>
+          <span class="upill"><span class="d"></span>Resolved</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d"></span>Footage gap</span><span class="v">Caught 02:13</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Root cause</span><span class="v">93% confidence</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Remote fix</span><span class="v">C-07 only</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Recovery</span><span class="v">Verified · 4 writes</span></div>
+        </div>
+        <div class="ufoot">Detected, fixed, verified — autonomously, overnight</div>
+      </div>
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#5b57e6;">SR</div>
+          <div><div class="uname">Sarah Rose · CSA</div><div class="uurl">itforce/csa</div></div>
+          <span class="upill"><span class="d"></span>Resolved</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d"></span>CCTV-4421</span><span class="v">Closed</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Overnight incident</span><span class="v">Reviewed 08:05</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Footage-gap disclosure</span><span class="v">Approved &amp; sent</span></div>
+        </div>
+        <div class="ufoot">One human — only the trust moment</div>
+      </div>
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#9aa6b4;">—</div>
+          <div><div class="uname">No Field Service · No IT Ops</div><div class="uurl">why agents acted alone</div></div>
+          <span class="upill by"><span class="d"></span>By design</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d mute"></span>On-site dispatch</span><span class="v">Not needed</span></div>
+          <div class="urow"><span class="l"><span class="d mute"></span>Approval gate on fix</span><span class="v">None · reversible</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Only gate</span><span class="v">The communication</span></div>
+        </div>
+        <div class="ufoot">Governance scaled to the risk</div>
+      </div>
+
+    </div>
+    <div class="land">
+      <div class="lk">The point to land</div>
+      <div class="lt">Legacy monitoring sees a <b>green light</b>; ITForce sees the <b>missing footage.</b> Detect, diagnose, fix and verify all ran autonomously overnight — a human entered <b>once, at dawn,</b> only for the compliance-sensitive disclosure. The proactive mirror of Story 2: same workforce, fewer humans, zero tickets.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S14 DEMO STORY 2 ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Story 2 — Network connectivity</div></div></div>
+    <div class="kicker">09 · Demo Story 2</div>
+  </div>
+  <h1 class="title" style="margin-bottom:4px;">Story 2 — Network incident, problem to resolution inside SLA</h1>
+  <p class="lede" style="margin-bottom:10px;">"The internet says connected, but check-in and X-rays time out." Remote telemetry can't isolate the fault — the definitive test is a physical <b>demarc check</b>, so the agents escalate to on-site and a governed production change.</p>
+  <div class="body grid2" style="grid-template-columns:0.95fr 1.05fr;">
+    <div class="col" style="gap:6px;overflow:hidden;">
+      <div class="eyebrow">Customer journey — 9-stage arc (Northstar Dental)</div>
+      <div class="arc">
+        <div class="step c"><span class="n">1</span><span class="tx"><b>Report</b> <span>— Elena, plain language, no forms</span></span></div>
+        <div class="step"><span class="n">2</span><span class="tx"><b>Classify &amp; diagnose</b> <span>— P1; remote exhausted → on-site</span></span></div>
+        <div class="step"><span class="n">3</span><span class="tx"><b>Route &amp; dispatch</b> <span>— field brief built · Sarah <i>Watch</i></span></span></div>
+        <div class="step h"><span class="n">4</span><span class="tx"><b>Ray investigates on site</b> <span>· On-site runbooks</span></span></div>
+        <div class="step h"><span class="n">5</span><span class="tx"><b>Ray mitigates</b> <span>— reversible failover, clinic operating</span></span></div>
+        <div class="step"><span class="n">6</span><span class="tx"><b>Diagnose &amp; propose fix</b> <span>— route correction, approval card</span></span></div>
+        <div class="step h"><span class="n">7</span><span class="tx"><b>Marcus approves</b> <span>· Approval — cross-clinic traffic</span></span></div>
+        <div class="step"><span class="n">8</span><span class="tx"><b>Execute permanent fix</b> <span>— rollback armed, 30-min watch</span></span></div>
+        <div class="step d"><span class="n">9</span><span class="tx"><b>Verify &amp; restore</b> <span>— confirmed to Elena inside 2-hr SLA</span></span></div>
+      </div>
+    </div>
+    <div class="col" style="gap:8px;">
+      <div class="embed"><iframe src="Demo%20Story%202%20-%20Network%20Connection%20Prototype.html" title="Demo Story 2 prototype"></iframe></div>
+      <div class="btnrow">
+        <a class="openbtn" href="Demo%20Story%202%20-%20Network%20Connection%20Prototype.html" target="_blank">▶ Open clickable prototype ↗</a>
+        <a class="openbtn ghost" href="Demo%20Story%202%20-%20Customer%20Journey%20Mapping.html" target="_blank">Open full journey map ↗</a>
+      </div>
+      Demo Story 2 - Network Connection Prototype
+    </div>
+  </div>
+</section>
+
+<!-- ============ S14b DEMO STORY 2 — OUTCOME (WOW) ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Story 2 — the outcome</div></div></div>
+    <div class="kicker">NET-2208 · Network connectivity — Resolved 09:25 · Inside the 2-hour P1 SLA</div>
+  </div>
+  <h1 class="title" style="margin-bottom:14px;">One incident, four roles, one outcome — humans only where judgment mattered</h1>
+  <div class="body" style="display:flex;flex-direction:column;gap:14px;">
+    <div class="fourup" style="flex:1;">
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#2f6b5e;">EP</div>
+          <div><div class="uname">Elena · Client</div><div class="uurl">portal.techguard.io</div></div>
+          <span class="upill"><span class="d"></span>Resolved</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d"></span>Managed Network</span><span class="v">Healthy</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Check-in &amp; X-rays</span><span class="v">Working</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Payments</span><span class="v">Working</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Update received</span><span class="v">Inside SLA</span></div>
+        </div>
+        <div class="ufoot">Never had to chase a status</div>
+      </div>
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#5b57e6;">SR</div>
+          <div><div class="uname">Sarah · CSA</div><div class="uurl">itforce/csa</div></div>
+          <span class="upill"><span class="d"></span>Resolved</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d"></span>NET-2208</span><span class="v">Closed</span></div>
+          <div class="urow"><span class="l"><span class="d mute"></span>Watched autonomously</span><span class="v">No action</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Client message</span><span class="v">Approved &amp; sent</span></div>
+        </div>
+        <div class="ufoot">Approved the one outbound message</div>
+      </div>
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#b9772f;">RO</div>
+          <div><div class="uname">Ray · Field Service</div><div class="uurl">itforce/fsl</div></div>
+          <span class="upill"><span class="d"></span>Resolved</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d"></span>Demarc test</span><span class="v">Done on site</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Runbooks</span><span class="v">4/4 pass</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Verify &amp; close</span><span class="v">Signed off</span></div>
+        </div>
+        <div class="ufoot">First-visit resolution</div>
+      </div>
+
+      <div class="ucard">
+        <div class="uhead">
+          <div class="uav" style="background:#15171c;">MC</div>
+          <div><div class="uname">Marcus · IT Ops</div><div class="uurl">itforce/itops</div></div>
+          <span class="upill"><span class="d"></span>Resolved</span>
+        </div>
+        <div class="urows">
+          <div class="urow"><span class="l"><span class="d"></span>Route correction</span><span class="v">Executed</span></div>
+          <div class="urow"><span class="l"><span class="d mute"></span>Blast radius</span><span class="v">Plano West only</span></div>
+          <div class="urow"><span class="l"><span class="d"></span>Rollback</span><span class="v">Armed → clean</span></div>
+        </div>
+        <div class="ufoot">Governed the one production change</div>
+      </div>
+
+    </div>
+    <div class="land">
+      <div class="lk">The point to land</div>
+      <div class="lt">CSA classifies, FSA investigates and mitigates, the <b>Network Diagnostic Agent</b> proposes the permanent fix, and IT Ops governs the production change — one continuous, evidence-backed flow across every persona.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S15 ROADMAP (PLACEHOLDER) ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Roadmap</div></div></div>
+    <div class="kicker">11 · Roadmap</div>
+  </div>
+  <h1 class="title">What Comes Next</h1>
+  <p class="lede">Three capability phases beyond the current prototype — autonomy expands only with proven performance.</p>
+  <div class="body" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;min-height:0;">
+
+    <div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="background:#028090;padding:15px 18px 13px;flex-shrink:0;">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6);margin-bottom:7px;">Phase 1</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.2;">Predictive Operations</div>
+      </div>
+      <div style="padding:14px 18px 16px;flex:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11.5px;font-weight:700;color:#028090;line-height:1.35;">Find and fix issues before they occur</div>
+        <div style="height:1px;background:#eaecf0;flex-shrink:0;"></div>
+        <ul style="margin:0;padding-left:15px;display:flex;flex-direction:column;gap:8px;">
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Anomaly pattern detection across telemetry history</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Asset health trending to predict failure weeks ahead</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Risk-triggered maintenance, not scheduled</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="background:#6d59c7;padding:15px 18px 13px;flex-shrink:0;">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6);margin-bottom:7px;">Phase 2</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.2;">Governance &amp; Control</div>
+      </div>
+      <div style="padding:14px 18px 16px;flex:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11.5px;font-weight:700;color:#6d59c7;line-height:1.35;">Configurable levers for agent autonomy</div>
+        <div style="height:1px;background:#eaecf0;flex-shrink:0;"></div>
+        <ul style="margin:0;padding-left:15px;display:flex;flex-direction:column;gap:8px;">
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Per-client, per-action autonomy settings</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Permissions that widen as agents earn a track record</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Audit trail and human override at every level</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="background:#2364aa;padding:15px 18px 13px;flex-shrink:0;">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6);margin-bottom:7px;">Phase 3</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.2;">Specialization &amp; Learning</div>
+      </div>
+      <div style="padding:14px 18px 16px;flex:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11.5px;font-weight:700;color:#2364aa;line-height:1.35;">Agents that know your specific deployment</div>
+        <div style="height:1px;background:#eaecf0;flex-shrink:0;"></div>
+        <ul style="margin:0;padding-left:15px;display:flex;flex-direction:column;gap:8px;">
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Device-family specialists by model and circuit type</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Client-specific baselines that build over time</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.4;">Depth that compounds per deployment, not resets</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ S16 ARCHITECTURE (PLACEHOLDER) ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Architecture & technical considerations</div></div></div>
+    <div class="kicker">12 · Architecture</div>
+  </div>
+  <h1 class="title" style="margin-bottom:4px;">Three layers of technical considerations</h1>
+  <p class="lede" style="margin-bottom:10px;">Product constraints set the boundaries; Salesforce provides context; the agent layer executes. Each layer has its own design decisions.</p>
+  <div class="body" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;min-height:0;">
+
+    <div class="card tl-human" style="display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;">
+      <div style="padding:11px 15px 9px;border-bottom:1px solid var(--line);flex-shrink:0;">
+        <div class="eyebrow" style="color:var(--human);margin-bottom:3px;">Layer 1</div>
+        <div style="font-size:14px;font-weight:700;line-height:1.2;">Product Constraints</div>
+      </div>
+      <div style="padding:10px 15px 12px;flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid var(--human-bd);padding-left:9px;"><b style="color:var(--ink);">Confidence gates</b> - each action type has a threshold; below it the agent escalates rather than acts.</div>
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid var(--human-bd);padding-left:9px;"><b style="color:var(--ink);">Reversibility constraint</b> - agents may only take irreversible actions after explicit approval. Per-asset frequency caps prevent runaway automation loops.</div>
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid var(--human-bd);padding-left:9px;"><b style="color:var(--ink);">Audit trail</b> - every article read, action taken, and escalation decision is logged.</div>
+      </div>
+    </div>
+
+    <div class="card tl-agent" style="display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;">
+      <div style="padding:11px 15px 9px;border-bottom:1px solid var(--line);flex-shrink:0;">
+        <div class="eyebrow" style="color:var(--agent);margin-bottom:3px;">Layer 2</div>
+        <div style="font-size:14px;font-weight:700;line-height:1.2;">Context Layer — Salesforce</div>
+      </div>
+      <div style="padding:10px 15px 12px;flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid var(--agent-bd);padding-left:9px;"><b style="color:var(--ink);">Structured data queriet at runtime</b> — asset registry (Configuration Management Database), client SLAs, and telemetry are queried live, not baked into the model. This helps ensure no stale knowledge.</div>
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid var(--agent-bd);padding-left:9px;"><b style="color:var(--ink);">MCP servers</b> — external integrations (monitoring platforms, ISP APIs) connect via Model Context Protocol, giving agents permissioned tool access without open credentials.</div>
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid var(--agent-bd);padding-left:9px;"><b style="color:var(--ink);">Per-client isolation</b> — access token scoping at the data layer enforces client boundaries deterministically. An agent serving Client A cannot read or write Client B data, regardless of prompt.</div>
+      </div>
+    </div>
+
+    <div class="card tl-done" style="display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;">
+      <div style="padding:11px 15px 9px;border-bottom:1px solid var(--line);flex-shrink:0;">
+        <div class="eyebrow" style="color:var(--done);margin-bottom:3px;">Layer 3</div>
+        <div style="font-size:14px;font-weight:700;line-height:1.2;">Agent Layer — Knowledge &amp; Guardrails</div>
+      </div>
+      <div style="padding:10px 15px 12px;flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid #cfe9da;padding-left:9px;"><b style="color:var(--ink);">RAG, not fine-tuning</b> — operational knowledge (runbooks, device specs, firmware notes) lives in a retrieval index. Updates publish immediately without retraining. Fine-tuning was ruled out because keeping a model current with a changing device fleet and deployment landscape is impractical.</div>
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid #cfe9da;padding-left:9px;"><b style="color:var(--ink);">Partitioned RAG</b> — agents are pre-scoped to the relevant partition using deterministic fields (e.g. camera model + firmware version from the asset registry + client ID). This bounds search space and prevents cross-domain retrieval noise.</div>
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid #cfe9da;padding-left:9px;"><b style="color:var(--ink);">Precision vs. ambiguity</b> — asset state, action parameters, and client-facing disclosures require absolute accuracy and go through HITL. Internal diagnostic summaries and draft communications tolerate more latitude.</div>
+        <div style="font-size:11px;line-height:1.4;color:var(--muted);border-left:2px solid #cfe9da;padding-left:9px;"><b style="color:var(--ink);">Evals</b> — agents are tested against historical incidents with known outcomes. Regressions on triage classification, action selection, or escalation trigger block deployment.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============ S17 CLOSING ============ -->
+<section class="slide title-slide">
+  <div class="kicker">Strategic positioning</div>
+  <h1 style="font-size:38px;">Proactive, governed, human-in-the-loop service operations</h1>
+  <div class="sub">Position this as <b style="color:#fff;">AI-native managed service operations</b> — not generic ITSM automation. Fewer customer-reported issues, governed AI agents plus human managers, and field service as part of one continuous, context-rich loop.</div>
+  <div class="ns"><b style="color:#dfe6ff;">Agents do the repeatable work. Humans manage the moments that matter.</b></div>
+  <div class="tg">TechGuard · ITForce · Vision, Solution Approach & Working Demo</div>
+</section>
+
+<!-- ============ S18 APPENDIX ============ -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brand"><div class="logo">IF</div><div><div class="bt">ITForce</div><div class="bs">Appendix · resources</div></div></div>
+    <div class="kicker">12 · Appendix</div>
+  </div>
+  <h1 class="title" style="margin-bottom:3px;">Appendix — supporting resources</h1>
+  <p class="lede" style="margin-bottom:14px;">Every artifact behind this deck, linked. Open any in a new tab.</p>
+  <div class="body grid3">
+    <div class="card tl-agent" style="display:flex;flex-direction:column;">
+      <div class="eyebrow" style="color:var(--agent);">Strategy & structure</div>
+      <a class="aplink" href="Vision%20and%20Solution%20Approach.html" target="_blank"><span class="ai-dot" style="background:var(--agent);"></span>Vision & Solution Approach<span class="aptype">HTML</span></a>
+      <a class="aplink" href="Hybrid%20ITSM%20Workforce.html" target="_blank"><span class="ai-dot" style="background:var(--agent);"></span>Hybrid workforce org chart<span class="aptype">HTML</span></a>
+      <a class="aplink" href="Evolution%20of%20ITSM%20in%20the%20AI-Native%20World%20-%20Part%201%20submission.docx" target="_blank"><span class="ai-dot" style="background:var(--agent);"></span>Part 1 submission<span class="aptype">DOCX</span></a>
+    </div>
+    <div class="card tl-done" style="display:flex;flex-direction:column;">
+      <div class="eyebrow" style="color:var(--done);">Customer journey maps</div>
+      <a class="aplink" href="Demo%20Story%201%20-%20Customer%20Journey%20Mapping.html" target="_blank"><span class="ai-dot" style="background:var(--done);"></span>Story 1 — Proactive CCTV journey<span class="aptype">HTML</span></a>
+      <a class="aplink" href="Demo%20Story%202%20-%20Customer%20Journey%20Mapping.html" target="_blank"><span class="ai-dot" style="background:var(--done);"></span>Story 2 — Network connectivity journey<span class="aptype">HTML</span></a>
+    </div>
+    <div class="card tl-human" style="display:flex;flex-direction:column;">
+      <div class="eyebrow" style="color:var(--human);">Working prototypes</div>
+      <a class="aplink" href="Demo%20Story%201%20-%20CCTV%20Prototype.html" target="_blank"><span class="ai-dot" style="background:var(--human);"></span>Story 1 — CCTV prototype<span class="aptype">HTML</span></a>
+      <a class="aplink" href="Demo%20Story%202%20-%20Network%20Connection%20Prototype.html" target="_blank"><span class="ai-dot" style="background:var(--human);"></span>Story 2 — Network prototype<span class="aptype">HTML</span></a>
+    </div>
+  </div>
+  <div class="foot">All files live in the ITForce case-study folder; links are relative, so keep this deck alongside them.</div>
+</section>
+
+</div></div>
+
+<div id="nav">
+  <button id="prev" aria-label="Previous">‹</button>
+  <span id="counter">1 / 17</span>
+  <button id="next" aria-label="Next">›</button>
+</div>
+<div id="help">← → to navigate · F fullscreen</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0;
+  const counter=document.getElementById('counter');
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    counter.textContent=(i+1)+' / '+slides.length;
+  }
+  function fit(){
+    const pad=40;
+    const sx=(window.innerWidth-pad)/1280, sy=(window.innerHeight-pad)/720;
+    document.getElementById('deck').style.transform='scale('+Math.min(sx,sy)+')';
+  }
+  document.getElementById('next').onclick=()=>show(i+1);
+  document.getElementById('prev').onclick=()=>show(i-1);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')show(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')show(i-1);
+    else if(e.key==='Home')show(0);
+    else if(e.key==='End')show(slides.length-1);
+    else if(e.key.toLowerCase()==='f'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+  });
+  window.addEventListener('resize',fit);
+  fit();show(0);
+</script>
+</body>
+</html>

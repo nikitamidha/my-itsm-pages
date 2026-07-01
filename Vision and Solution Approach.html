@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ITSM in the AI Native World</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5f6b7a;
+      --line: #d8dde6;
+      --soft: #f7f8fa;
+      --accent: #2457d6;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #ffffff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .page {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .sidebar {
+      padding: 18px 0 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .sidebar h2 {
+      display: none;
+    }
+
+    .sidebar nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 14px;
+    }
+
+    .sidebar nav a {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .hero {
+      padding: 34px 0 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero h1 {
+      max-width: 880px;
+      margin: 0;
+      font-size: clamp(34px, 4vw, 52px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .hero .lede {
+      max-width: 920px;
+      margin: 14px 0 0;
+      color: #303a49;
+      font-size: 18px;
+    }
+
+    .north-star {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      max-width: 920px;
+      margin-top: 14px;
+      padding: 10px 0 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .north-star strong {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .north-star p {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    section {
+      padding: 28px 0;
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    section.alt { background: #ffffff; }
+
+    .section-header {
+      display: grid;
+      grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    p {
+      margin: 0 0 10px;
+      color: #303a49;
+    }
+
+    .insight-grid,
+    .workforce,
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    .insight,
+    .role-block,
+    .persona-card,
+    .positioning,
+    .placeholder {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .insight p,
+    .role-block p,
+    .persona-card p { color: var(--muted); }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: #ffffff;
+      box-shadow: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th:last-child,
+    td:last-child { border-right: 0; }
+    tr:last-child td { border-bottom: 0; }
+
+    th {
+      color: var(--ink);
+      background: var(--soft);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    td:first-child { font-weight: 700; }
+
+    .principles table { min-width: 680px; }
+    .principles td:first-child { width: 30%; color: var(--ink); }
+
+    .persona-card {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .persona-card img {
+      display: block;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--line);
+    }
+
+    .persona-card .body { padding: 0; }
+    .persona-card h3 { margin: 0; }
+
+    .persona-card .name {
+      margin: 1px 0 4px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .tag {
+      display: inline;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .placeholder {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .sources { padding-bottom: 38px; }
+
+    .sources ol {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .sources li { margin: 5px 0; }
+
+    @media (max-width: 820px) {
+      .page { width: min(100% - 32px, 1180px); }
+      .section-header { grid-template-columns: 1fr; gap: 8px; }
+      .insight-grid, .workforce, .persona-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 34px; }
+      .hero .lede { font-size: 16px; }
+      .north-star { display: block; }
+      .north-star p { margin-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <p class="eyebrow">TechGuard Vision</p>
+      <h2>ITSM in the AI Native World</h2>
+      <nav aria-label="Page sections">
+        <a href="#industry">Industry Insight</a>
+        <a href="#solve">Solving for AI Native</a>
+        <a href="#principles">Solution Principles</a>
+        <a href="#outlook">Product Outlook</a>
+        <a href="#workforce">Agent Workforce</a>
+        <a href="#personas">Persona Shift</a>
+        <a href="#hybrid">Hybrid Workforce</a>
+        <a href="#positioning">Positioning</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <p class="eyebrow">AI-native managed service operations</p>
+        <h1>ITSM in the AI Native World</h1>
+        <p class="lede">The shift is not better ticketing. Traditional ITSM starts after customer pain. AI-native ITSM starts earlier, with agents detecting risk, attempting safe fixes, assembling evidence, and escalating only when human judgment is needed.</p>
+        <div class="north-star">
+          <strong>North star</strong>
+          <p>Resolve every IT issue before the client feels it.</p>
+        </div>
+      </header>
+
+      <section id="industry" class="alt">
+        <div class="section-header">
+          <h2>Industry Insight</h2>
+          <div>
+            <p>Agentic AI has crossed from theory to execution. Gartner expects task-specific agents in up to 40% of enterprise applications by the end of 2026, yet only 17% of organizations have deployed AI agents today. The constraint is trust: what will enterprises let agents do?</p>
+          </div>
+        </div>
+        <div class="insight-grid">
+          <article class="insight">
+            <h3>The market has moved</h3>
+            <p>AI can already summarize, triage, and suggest. The strategic question is whether enterprises trust agents to act.</p>
+          </article>
+          <article class="insight">
+            <h3>ServiceNow is workflow-led</h3>
+            <p>Its strength is governed workflow execution through established processes, policies, and deterministic orchestration.</p>
+          </article>
+          <article class="insight">
+            <h3>Salesforce differentiation</h3>
+            <p>Agentforce can reason and act inside the same environment as customer, service, field, and collaboration context.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="solve">
+        <div class="section-header">
+          <h2>Solving for the AI Native World</h2>
+          <p>The old world is episodic, ticket-led, and human-processed. The new world is always-on, predictive, preventive, and governed by humans where judgment, risk, trust, security, or customer context matters.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Dimension</th>
+                <th>Old World</th>
+                <th>AI-Native World</th>
+                <th>Customer Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Starting point</td><td>Customer reports pain</td><td>Telemetry detects risk early</td><td>Fewer customer-discovered incidents</td></tr>
+              <tr><td>Unit of work</td><td>Ticket</td><td>Outcome</td><td>Customers buy continuity, not case handling</td></tr>
+              <tr><td>Human role</td><td>Intake, triage, routing, updates</td><td>Manager, approver, calibrator, relationship owner</td><td>Humans focus on judgment and improvement</td></tr>
+              <tr><td>Diagnosis</td><td>Manual investigation across tools</td><td>Agents correlate telemetry, history, assets, and patterns</td><td>Faster root cause clarity</td></tr>
+              <tr><td>Resolution</td><td>Tiered escalation</td><td>Safe fixes first, then evidence-backed escalation</td><td>Less disruption and cost to serve</td></tr>
+              <tr><td>Field service</td><td>Thin-context dispatch</td><td>Pre-briefed work orders with parts, history, and close checklist</td><td>Fewer visits and wrong-part trips</td></tr>
+              <tr><td>Communication</td><td>Manual updates after progress</td><td>Proactive drafts from live incident state</td><td>Clients hear from TechGuard first</td></tr>
+              <tr><td>Documentation</td><td>Inconsistent human capture</td><td>Structured trace generated as work happens</td><td>Better auditability and learning</td></tr>
+              <tr><td>Governance</td><td>Team or hierarchy based</td><td>Confidence, reversibility, blast radius, compliance, relationship risk</td><td>More autonomy without reckless automation</td></tr>
+              <tr><td>Measurement</td><td>MTTR, backlog, SLA compliance</td><td>Proactive Resolution Rate, customer-discovered incidents, verified autonomous resolution, first-visit resolution</td><td>Value is avoided pain, not just faster recovery</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="principles" class="principles alt">
+        <div class="section-header">
+          <h2>Solution First Principles</h2>
+          <p>The operating model must make autonomy useful without making it reckless.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Principle</th>
+                <th>Design implication</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Proactivity must be designed in</td><td>If the system sees risk first and does not act, the product failed. Monitoring is the front door of service.</td></tr>
+              <tr><td>Humans manage the AI workforce and customer relationship</td><td>CSAs should not chase status, IT Ops should not repeat safe diagnostics, and Field Techs should not arrive blind.</td></tr>
+              <tr><td>Confidence and risk drive escalation</td><td>Escalate on uncertainty, irreversibility, blast radius, compliance exposure, and relationship risk, not just queue or time.</td></tr>
+              <tr><td>Documentation creates the learning loop</td><td>Agents leave a structured trail of observations, actions, confidence, approvals, changes, and customer messages.</td></tr>
+              <tr><td>Governance is the moat</td><td>Autonomy starts narrow and reversible, then expands only with proven performance. Every action is permissioned, logged, auditable, and overridable.</td></tr>
+              <tr><td>The MSP unit of design is the client relationship</td><td>SLA tier, tone, risk tolerance, site criticality, compliance exposure, and end-customer impact shape every agent decision.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="outlook">
+        <div class="section-header">
+          <h2>Product Outlook</h2>
+          <div>
+            <p>The product is an AI workforce operations center: agents do the repeatable work; humans manage risk, trust, exceptions, customer relationships, and system performance.</p>
+            <p>The design question is: which scenarios can agents safely own end to end, and where must humans enter the loop? Human-in-the-loop is not fallback; it is the management system that lets autonomy scale.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="workforce" class="alt">
+        <div class="section-header">
+          <h2>The AI-Native ITSM Agent Workforce</h2>
+          <p>The workforce has shared platform agents and TechGuard-specific domain agents. Each agent is a workforce role, not a feature.</p>
+        </div>
+        <div class="workforce">
+          <article class="role-block foundation">
+            <h3>Foundation layer</h3>
+            <p>Shared platform agents handle proactive work like monitoring, inventory, maintenance, and correlation, plus reactive work like scoping, routing, dispatch, and communication.</p>
+          </article>
+          <article class="role-block techguard">
+            <h3>TechGuard service layer</h3>
+            <p>Domain agents adapt the model to CCTV, web hosting, and network connectivity: footage integrity, deploy regressions, circuit baselines, ISP evidence, remote fixes, and field handoff.</p>
+          </article>
+          <article class="role-block governance">
+            <h3>Agent management</h3>
+            <p>Each role needs a job description, allowed tools, memory, KPIs, confidence thresholds, escalation paths, audit trail, and human manager.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-header">
+          <h2>Agent Inventory Schema</h2>
+          <p>A first-pass workforce map for platform, CCTV, web hosting, and network service operations.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>Agent</th>
+                <th>Owns</th>
+                <th>Human trigger</th>
+                <th>KPI</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Platform</td><td>Monitoring &amp; Detection</td><td>Detects anomalies and opens structured incidents</td><td>Novel signals, ambiguous severity</td><td>Customer-discovered incident rate</td></tr>
+              <tr><td>Platform</td><td>Asset Discovery &amp; Inventory</td><td>Reconciles new, missing, unmanaged, or changed assets</td><td>Ownership or security ambiguity</td><td>Asset registry completeness</td></tr>
+              <tr><td>Platform</td><td>Preventive Maintenance</td><td>Schedules updates, checks, and inspections</td><td>Fleet push, window conflict</td><td>Prevented-failure rate</td></tr>
+              <tr><td>Platform</td><td>Impact &amp; Correlation</td><td>Finds cross-client, service, provider, geography, or model clusters</td><td>Low confidence, major impact</td><td>Duplicate incident reduction</td></tr>
+              <tr><td>Platform</td><td>Scoping &amp; Triage</td><td>Structures incidents without diagnosing</td><td>Ambiguous service line or missing context</td><td>Triage completeness</td></tr>
+              <tr><td>Platform</td><td>Router</td><td>Routes to the right agent or human</td><td>Low-confidence or novel routing</td><td>Correct routing rate</td></tr>
+              <tr><td>Platform</td><td>Field Dispatch</td><td>Creates work order and technician brief</td><td>Dispatch approval, parts uncertainty</td><td>First-visit resolution</td></tr>
+              <tr><td>Platform</td><td>Communication</td><td>Drafts tier-calibrated customer updates</td><td>Outbound B2B comms, legal notice</td><td>Time to customer notification</td></tr>
+              <tr><td>CCTV</td><td>Footage Integrity</td><td>Confirms cameras are writing footage</td><td>Footage gap, storage or compliance risk</td><td>Footage-gap prevention</td></tr>
+              <tr><td>CCTV</td><td>CCTV Diagnostic</td><td>Decides remote fix vs. dispatch and required parts</td><td>Failed recovery, uncertain cause</td><td>Autonomous recovery rate</td></tr>
+              <tr><td>Web Hosting</td><td>Deployment Watch</td><td>Correlates error spikes with deployments</td><td>Rollback or production risk</td><td>Regression detection time</td></tr>
+              <tr><td>Web Hosting</td><td>Web Hosting Resolution</td><td>Classifies failure and executes or stages fixes</td><td>Rollback, DB/schema, malware</td><td>Autonomous resolution rate</td></tr>
+              <tr><td>Network</td><td>Network Baseline Monitor</td><td>Detects brownouts from per-circuit baselines</td><td>Uncertain customer impact</td><td>Brownout accuracy</td></tr>
+              <tr><td>Network</td><td>Network Diagnostic</td><td>Classifies fault and builds ISP evidence</td><td>ISP escalation, demarc, failover</td><td>Fault isolation time</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="personas" class="alt">
+        <div class="section-header">
+          <h2>ITSM Persona's Shift in the AI Native World</h2>
+          <p>The same people remain critical, but their work moves away from manual processing and toward trust, judgment, and orchestration.</p>
+        </div>
+        <div class="persona-grid">
+          <article class="persona-card">
+            <img src="assets/personas/sarah-rose.png" alt="Sarah Rose, Customer Service Agent">
+            <div class="body">
+              <h3>Customer Service Agent</h3>
+              <p class="name">Sarah Rose</p>
+              <p><span class="tag">Customer confidence manager</span></p>
+              <p>Moves from intake and status chasing to managing customer trust, agent approvals, and rising account risk.</p>
+            </div>
+          </article>
+          <article class="persona-card">
+            <img src="assets/personas/marcus-chen.png" alt="Marcus Chen, IT Ops Agent">
+            <div class="body">
+              <h3>IT Ops Agent</h3>
+              <p class="name">Marcus Chen</p>
+              <p><span class="tag">Technical manager of agents</span></p>
+              <p>Moves from investigation and routing to reviewing evidence, approving risky actions, and tuning thresholds.</p>
+            </div>
+          </article>
+          <article class="persona-card">
+            <img src="assets/personas/ray-oak.png" alt="Ray Oak, Field Service Agent">
+            <div class="body">
+              <h3>Field Service Agent</h3>
+              <p class="name">Ray Oak</p>
+              <p><span class="tag">Guided physical execution</span></p>
+              <p>Moves from thin-context dispatch to pre-briefed execution with history, likely cause, parts, access, and close checklist.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="hybrid">
+        <div class="section-header">
+          <h2>Hybrid Agent Workforce</h2>
+          <p><a href="Hybrid ITSM Workforce.html">Open the hybrid workforce view</a></p>
+        </div>
+      </section>
+
+      <section id="positioning">
+        <div class="section-header">
+          <h2>Strategic Positioning</h2>
+          <div class="positioning">
+            <p>TechGuard should position this as AI-native managed service operations, not generic ITSM automation: fewer customer-reported issues, governed AI agents plus human managers, and field service as part of a continuous context-rich loop.</p>
+            <p><strong>The message:</strong> proactive, governed, human-in-the-loop service operations where agents do the repeatable work and humans manage the moments that matter.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="sources">
+        <div class="section-header">
+          <h2>Sources</h2>
+          <ol>
+            <li><a href="https://www.gartner.com/en/newsroom/press-releases/2025-08-26-gartner-predicts-40-percent-of-enterprise-apps-will-feature-task-specific-ai-agents-by-2026-up-from-less-than-5-percent-in-2025">Gartner - task-specific agents in enterprise applications</a></li>
+            <li><a href="https://www.gartner.com/en/articles/hype-cycle-for-agentic-ai">Gartner - 17% of organizations have deployed AI agents</a></li>
+            <li><a href="https://newsroom.servicenow.com/press-releases/details/2026/ServiceNow-launches-Autonomous-Workforce-that-thinks-and-acts-adds-Moveworks-to-the-ServiceNow-AI-Platform/default.aspx">ServiceNow - Autonomous Workforce</a></li>
+            <li><a href="https://www.salesforce.com/agentforce/">Salesforce - Agentforce</a></li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

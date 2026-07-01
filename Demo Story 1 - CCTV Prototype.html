@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechGuard · ITForce — Story 1: Proactive CCTV Resolution (CCTV-4421)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15171C; --ink2:#2B333D; --slate600:#586471; --slate500:#8B919E; --slate400:#9AA0AB;
+  --border:#EAECF0; --hairline:#F2F3F6; --canvas:#F6F7F9; --white:#fff;
+  --indigo600:#5B57E6; --indigo700:#4B46D0; --indigo500:#6C69E0; --indigo300:#C4C2F3; --indigo50:#EEEEF9; --indigo25:#F4F4FC;
+  --crit:#E5484D; --crit-bg:#FDECEB; --crit-fg:#b3373b;
+  --warn:#BD7D12; --warn-bg:#F8F0DF; --warn-fg:#876028;
+  --heal:#18935F; --heal-bg:#E6F2EC;
+  --agent:#3B82C4; --agent-bg:#E8F1F9; --agent-fg:#2c6592;
+  --human:#5B57E6; --human-bg:#EEEEF9; --human-fg:#4b46d0;
+  --close-bg:#f1eaf4; --close-fg:#774a82; --close-dot:#9a5fa6;
+  --watch-bg:#eef1f4; --watch-fg:#586471; --watch-dot:#7c8794;
+  --teal:#0f766e; --teal-bg:#e7f3f1;
+  --r-pill:7px; --r-ctrl:11px; --r-card:14px; --r-panel:18px;
+  --shadow-raise:0 6px 18px rgba(20,23,30,.06);
+  --shadow-float:0 8px 28px rgba(20,23,30,.18);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;}
+body{
+  font-family:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  color:var(--ink); background:#0f1014; font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased; overflow:hidden;
+}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:#e2e4e9;border-radius:8px;border:3px solid transparent;background-clip:content-box;}
+button{font-family:inherit;cursor:pointer;}
+
+/* ===== Stage ===== */
+#stage{position:fixed;inset:0;bottom:84px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0f1014;}
+.frame-desktop{width:100%;height:100%;max-width:1180px;max-height:760px;background:var(--canvas);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-float);}
+
+/* top browser-ish bar */
+.topbar{height:38px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:8px;padding:0 14px;font-size:12px;color:var(--slate500);}
+.topbar .dot{width:10px;height:10px;border-radius:50%;}
+.topbar .url{flex:1;text-align:center;font-size:11px;color:var(--slate400);background:var(--canvas);border-radius:7px;padding:4px 0;max-width:420px;margin:0 auto;}
+
+/* ===== Desktop three-pane ===== */
+.app{flex:1;display:flex;min-height:0;}
+.rail{width:226px;flex-shrink:0;background:#fff;border-right:1px solid #eef0f3;display:flex;flex-direction:column;}
+.rail-top{padding:16px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--hairline);}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--indigo600);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;letter-spacing:-.3px;}
+.rail nav{flex:1;overflow-y:auto;padding:12px 10px;}
+.navgrp{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#aab0bb;margin:13px 4px 5px 11px;}
+.navitem{padding:7px 11px;margin-bottom:1px;border-radius:9px;font-size:12.5px;font-weight:500;color:#3d424d;cursor:pointer;display:flex;align-items:center;gap:9px;}
+.navitem:hover{background:var(--indigo25);color:var(--indigo700);}
+.navitem.active{background:var(--indigo50);color:var(--indigo700);font-weight:600;}
+.navitem .ct{margin-left:auto;font-size:11px;font-weight:600;color:var(--slate400);}
+.navitem .ct.alert{background:var(--crit);color:#fff;border-radius:20px;padding:1px 6px;font-size:10px;}
+.rail-user{padding:11px 14px;border-top:1px solid var(--hairline);display:flex;align-items:center;gap:9px;}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+
+.center{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--canvas);}
+.center-scroll{flex:1;overflow-y:auto;padding:26px 30px 40px;}
+.copilot{width:300px;flex-shrink:0;background:#fff;border-left:1px solid #eef0f3;display:flex;flex-direction:column;}
+
+/* headers */
+.eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--slate400);}
+h1.page{font-size:27px;font-weight:700;letter-spacing:-.7px;margin:2px 0 3px;}
+.sub{font-size:13px;color:var(--slate500);}
+
+/* badges & pills */
+.pri{font-size:10.5px;font-weight:700;color:#fff;padding:2px 8px;border-radius:var(--r-pill);letter-spacing:.2px;}
+.pri.p1{background:var(--crit);} .pri.p2{background:var(--warn);} .pri.p3{background:#8b909c;}
+.mode{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;}
+.mode .d{width:6px;height:6px;border-radius:50%;}
+.mode.inputs{background:#FAECE7;color:#993C1D;} .mode.inputs .d{background:#B4502A;}
+.mode.approvals{background:#FAEEDA;color:#854F0B;} .mode.approvals .d{background:#BD7D12;}
+.mode.verify{background:#EAF3DE;color:#3B6D11;} .mode.verify .d{background:#5C8F1E;}
+.mode.watch{background:#E6F1FB;color:#185FA5;} .mode.watch .d{background:#3B82C4;}
+.mode.cluster{background:#FAEEDA;color:#854F0B;} .mode.cluster .d{background:#BD7D12;}
+.mode.auto{background:#eaf1fe;color:#2563c9;} .mode.auto .d{background:#2563c9;}
+
+/* inline right pane (three-pane reflow) */
+.rpane{width:452px;flex-shrink:0;background:#fff;border-left:1px solid #eef0f3;display:flex;flex-direction:column;}
+.pane-head{padding:15px 20px 13px;border-bottom:1px solid var(--hairline);}
+.pane-body{flex:1;overflow-y:auto;padding:16px 20px;}
+.pane-foot{padding:13px 20px;border-top:1px solid var(--hairline);display:flex;gap:10px;align-items:center;}
+.icbtn{width:30px;height:30px;border-radius:9px;border:1px solid var(--border);background:#fff;color:var(--slate600);font-size:13px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.icbtn:hover{border-color:var(--indigo300);color:var(--indigo700);}
+
+/* agent trace timeline */
+.trace{position:relative;margin:4px 0 8px;}
+.tnode{position:relative;padding:0 0 18px 30px;}
+.tnode:before{content:'';position:absolute;left:9px;top:20px;bottom:-2px;width:2px;background:var(--border);}
+.tnode:last-child:before{display:none;}
+.tdot{position:absolute;left:0;top:1px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
+.tdot.done{background:var(--heal);} .tdot.active{background:var(--agent);box-shadow:0 0 0 4px var(--agent-bg);}
+.tnode .tname{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.tnode .ttime{font-size:10.5px;color:var(--slate400);font-weight:600;}
+.tnode .tfind{font-size:12px;color:var(--ink2);line-height:1.5;margin:6px 0;}
+.tnode .thand{font-size:11.5px;color:var(--slate600);background:var(--canvas);border:1px solid var(--hairline);border-radius:9px;padding:7px 10px;margin-top:6px;display:flex;gap:7px;align-items:flex-start;}
+.insight{background:#FAECE7;border:1px solid #f0d5c8;border-radius:10px;padding:9px 11px;margin-top:7px;font-size:11.5px;color:#993C1D;line-height:1.45;}
+.insight b{color:#7a2e16;}
+
+/* notification center */
+.notif-wrap{position:relative;}
+.notif-btn{position:relative;width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;}
+.notif-btn .cnt{position:absolute;top:-5px;right:-5px;background:var(--crit);color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;}
+.notif-panel{position:absolute;top:44px;right:0;width:330px;background:#fff;border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--shadow-float);z-index:40;overflow:hidden;}
+.notif-item{padding:11px 14px;border-bottom:1px solid var(--hairline);display:flex;gap:10px;align-items:flex-start;}
+.notif-item .nd{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.newpill{font-size:9.5px;font-weight:700;color:#fff;background:#7a6fb0;border-radius:6px;padding:1px 6px;letter-spacing:.3px;}
+.livedot{width:7px;height:7px;border-radius:50%;background:var(--agent);display:inline-block;box-shadow:0 0 0 0 rgba(59,130,196,.5);animation:pulse 1.8s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(59,130,196,.45)}70%{box-shadow:0 0 0 7px rgba(59,130,196,0)}100%{box-shadow:0 0 0 0 rgba(59,130,196,0)}}
+.gappulse{animation:gp 1.6s infinite;}
+@keyframes gp{0%{box-shadow:0 0 0 0 rgba(229,72,77,.4)}70%{box-shadow:0 0 0 8px rgba(229,72,77,0)}100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
+
+/* pop-up toast notification */
+.toast{position:absolute;top:62px;right:26px;width:346px;background:#fff;border:1px solid var(--border);border-left:3px solid var(--heal);border-radius:13px;box-shadow:var(--shadow-float);padding:13px 15px;z-index:50;animation:toastin .5s cubic-bezier(.2,.8,.2,1);}
+.toast .tclose{position:absolute;top:9px;right:11px;font-size:13px;color:var(--slate400);cursor:pointer;line-height:1;}
+@keyframes toastin{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+
+/* clickable affordance */
+.clk{cursor:pointer;transition:box-shadow .12s,border-color .12s;}
+.clk:hover{box-shadow:0 4px 14px rgba(91,87,230,.10);border-color:var(--indigo300);}
+.navitem{cursor:pointer;}
+
+/* buttons */
+.btn{border-radius:var(--r-ctrl);padding:11px 17px;font-size:13px;font-weight:600;border:1px solid transparent;}
+.btn-dark{background:#1b1d23;color:#fff;} .btn-dark:hover{background:#2b2e36;}
+.btn-indigo{background:var(--indigo600);color:#fff;} .btn-indigo:hover{background:var(--indigo700);}
+.btn-out{background:#fff;color:#1b1d23;border-color:#dcdee5;} .btn-out:hover{border-color:var(--indigo300);}
+.btn-ghost{background:#fff;color:var(--slate500);border-color:#dcdee5;}
+.btn-copilot{background:var(--indigo50);color:var(--indigo700);border-color:#e3e2f6;}
+
+/* cards */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);}
+.metric{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:15px 16px;}
+.metric .lab{font-size:12px;font-weight:500;color:var(--slate500);}
+.metric .val{font-size:28px;font-weight:700;letter-spacing:-.6px;line-height:1;}
+.metric .sub{font-size:11px;color:var(--slate400);margin-top:7px;}
+
+/* queue row */
+.qrow{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:13px 16px;border-left:3px solid var(--indigo500);cursor:pointer;transition:box-shadow .12s,border-color .12s;}
+.qrow:hover{box-shadow:0 4px 14px rgba(91,87,230,.10);border-color:var(--indigo300);}
+.qrow.sel{box-shadow:0 4px 14px rgba(91,87,230,.14);border-color:var(--indigo300);background:#fdfdff;}
+.qrow .ttl{font-size:14px;font-weight:600;margin:7px 0;}
+.qmeta{display:flex;align-items:center;gap:6px 15px;flex-wrap:wrap;font-size:11.5px;color:#6c7280;}
+.qmeta2{display:flex;align-items:center;gap:6px 15px;flex-wrap:wrap;font-size:11px;color:var(--slate400);margin-top:5px;}
+.tag{font-size:11px;font-weight:500;color:var(--slate600);background:var(--canvas);border:1px solid #eef0f3;padding:3px 9px;border-radius:7px;}
+.chip{font-size:11px;font-weight:600;color:var(--slate600);background:#f1f3f6;padding:2px 9px;border-radius:6px;}
+.attn{font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;}
+.attn.appr{background:var(--agent-bg);color:var(--agent-fg);}
+.attn.heal{background:var(--heal-bg);color:var(--heal);}
+.attn.agent{background:var(--indigo50);color:var(--indigo700);}
+
+/* copilot */
+.cp-head{padding:15px 18px 12px;border-bottom:1px solid var(--hairline);}
+.cp-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:11px;}
+.cp-q{align-self:flex-end;max-width:84%;background:#1b1d23;color:#fff;border-radius:14px 14px 4px 14px;padding:9px 12px;font-size:12.5px;line-height:1.5;}
+.cp-a{align-self:flex-start;max-width:92%;background:#f5f6f8;color:var(--ink2);border:1px solid #eceef2;border-radius:14px 14px 14px 4px;padding:9px 12px;font-size:12.5px;line-height:1.55;}
+.cp-src{font-size:10px;color:#aab0bb;margin-top:-5px;}
+.cp-foot{padding:12px;border-top:1px solid var(--hairline);}
+.cp-input{width:100%;border:1px solid var(--border);border-radius:var(--r-ctrl);padding:10px 12px;font-size:12.5px;color:var(--slate500);background:var(--canvas);}
+
+.kv{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--hairline);font-size:12.5px;}
+.kv .k{color:var(--slate500);} .kv .v{font-weight:600;color:var(--ink2);text-align:right;}
+
+/* evidence rows */
+.ev{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--hairline);}
+.ev .ick{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:#fff;}
+.ev .nm{flex:1;font-size:12.5px;color:var(--ink2);}
+.ev .vv{font-size:11.5px;font-weight:600;}
+
+/* camera grid */
+.zone-lab{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate400);margin:14px 0 8px;}
+.camgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;}
+.cam{background:#fff;border:1px solid var(--border);border-radius:11px;padding:9px 10px;position:relative;overflow:hidden;}
+.cam .feed{height:34px;border-radius:7px;background:linear-gradient(135deg,#20242b,#2c333d);margin-bottom:7px;position:relative;}
+.cam .feed:after{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 2px,transparent 2px 4px);}
+.cam .cid{font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
+.cam .czone{font-size:9.5px;color:var(--slate400);margin-top:1px;}
+.cam .crec{font-size:9.5px;font-weight:600;margin-top:5px;display:flex;align-items:center;gap:4px;}
+.cam .hb{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.cam.gap{border-color:#f3c6b6;box-shadow:0 0 0 1px #f3c6b6;}
+.cam.gap .feed{background:linear-gradient(135deg,#3a2520,#2c333d);}
+.cam.recov{border-color:#cce5d8;}
+.cam.redund{border-color:var(--indigo300);}
+.cam .corner{position:absolute;top:6px;right:7px;font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:5px;}
+
+.b6{font-weight:600;} .b7{font-weight:700;} .mut{color:var(--slate500);}
+
+/* chat bubbles (customer portal) */
+.bubble-them{background:#f3f4f6;color:var(--ink2);border-radius:14px 14px 14px 4px;padding:10px 13px;font-size:12.5px;line-height:1.5;max-width:90%;}
+.bubble-me{background:#1b1d23;color:#fff;border-radius:14px 14px 4px 14px;padding:10px 13px;font-size:12.5px;line-height:1.5;max-width:90%;align-self:flex-end;}
+
+/* ticket tabs */
+.tabbar{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:14px 0 18px;}
+.tabbar .tab{padding:9px 15px;font-size:12.5px;font-weight:600;color:var(--slate500);border-bottom:2px solid transparent;cursor:pointer;display:flex;align-items:center;gap:7px;margin-bottom:-1px;}
+.tabbar .tab:hover{color:var(--indigo700);}
+.tabbar .tab.on{color:var(--ink);border-bottom-color:var(--ink);}
+.tabbar .tab .tct{font-size:10px;font-weight:700;background:var(--warn-bg);color:var(--warn-fg);border-radius:10px;padding:1px 6px;}
+
+/* floor-plan site map */
+.floor{position:relative;background:#eef1f5;border:2px solid #d2d7df;border-radius:14px;padding:34px 16px 16px;}
+.floor .ptag{position:absolute;top:9px;left:15px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate400);}
+.floor .pcams{position:absolute;top:8px;right:15px;display:flex;gap:13px;}
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;}
+.room{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;min-height:92px;}
+.room.span3{grid-column:span 3;min-height:64px;}
+.room.cage{border-color:#eaa389;box-shadow:0 0 0 2px #f6d9cd;background:#fff8f5;}
+.room.cage.ok{border-color:#9fcdb6;box-shadow:0 0 0 2px #dcefe5;background:#f6fbf8;}
+.room .rlab{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--slate500);margin-bottom:11px;}
+.room.cage .rlab{color:var(--crit-fg);}
+.room.cage.ok .rlab{color:var(--heal);}
+.cams{display:flex;flex-wrap:wrap;gap:9px 13px;}
+.cdot{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;color:var(--slate600);}
+.cdot .d{width:11px;height:11px;border-radius:50%;background:var(--heal);box-shadow:0 0 0 2px #fff,0 0 0 3px #e2e7ee;flex-shrink:0;}
+.cdot.focus .d{background:var(--crit);box-shadow:0 0 0 2px #fff,0 0 0 3px #f3c6b6;}
+.cdot.focus.ok .d{background:var(--heal);box-shadow:0 0 0 2px #fff,0 0 0 3px #cce5d8;}
+.cdot.redund .d{background:var(--indigo600);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--indigo300);}
+.cdot.focus{color:var(--crit-fg);font-weight:700;}
+.cdot.focus.ok{color:var(--heal);}
+.cdot.redund{color:var(--indigo700);}
+.maplegend{display:flex;gap:18px;flex-wrap:wrap;margin-top:15px;font-size:11px;color:var(--slate500);}
+.maplegend span{display:flex;align-items:center;gap:6px;}
+.maplegend i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+/* recap (wow) quad */
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.mini{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+.mini-head{padding:10px 13px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:9px;}
+.mini-body{padding:12px 13px;flex:1;}
+.mini-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--slate600);padding:5px 0;}
+
+/* ===== Presenter bar ===== */
+#presenter{position:fixed;left:0;right:0;bottom:0;height:84px;background:#15171c;color:#fff;display:flex;align-items:center;gap:18px;padding:0 22px;z-index:100;}
+#presenter .persona{display:flex;align-items:center;gap:9px;flex-shrink:0;padding-right:18px;border-right:1px solid #2b2e36;}
+#presenter .persona .nm{font-size:12px;font-weight:600;}
+#presenter .persona .rl{font-size:10.5px;color:#9aa0ab;}
+#presenter .cap{flex:1;min-width:0;}
+#presenter .cap .t{font-size:13.5px;font-weight:700;letter-spacing:-.2px;}
+#presenter .cap .b{font-size:11.5px;color:#aab0bb;line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+#presenter .nav2{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#presenter .demo-pill{font-size:10px;font-weight:700;letter-spacing:.5px;background:#2b2e36;color:#cfd1d8;padding:4px 9px;border-radius:7px;}
+#presenter .count{font-size:11px;color:#9aa0ab;font-variant-numeric:tabular-nums;min-width:42px;text-align:center;}
+#presenter .pbtn{width:38px;height:38px;border-radius:10px;border:1px solid #2b2e36;background:#1f2229;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;}
+#presenter .pbtn:hover{background:#2b2e36;}
+#presenter .pnext{width:auto;padding:0 18px;gap:7px;background:var(--indigo600);border-color:var(--indigo600);font-size:13px;font-weight:600;}
+#presenter .pnext:hover{background:var(--indigo700);}
+#progress{position:fixed;left:0;right:0;bottom:84px;height:3px;background:#2b2e36;z-index:101;}
+#progress i{display:block;height:100%;background:var(--indigo500);transition:width .25s;}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="progress"><i></i></div>
+<div id="presenter">
+  <div class="persona" id="p-persona"></div>
+  <div class="cap"><div class="t" id="p-title"></div><div class="b" id="p-body"></div></div>
+  <div class="nav2">
+    <span class="demo-pill">DEMO · STORY 1 · PROACTIVE CCTV</span>
+    <button class="pbtn" id="p-back">‹</button>
+    <span class="count" id="p-count"></span>
+    <button class="pbtn pnext" id="p-next">Next ›</button>
+  </div>
+</div>
+<script>
+/* ============ personas ============ */
+const A = {
+  atlas:{n:'Tom Avery',r:'Compliance & Facilities · Atlas Logistics',av:'TA',c:'#0f766e'},
+  sarah:{n:'Sarah Rose',r:'CSA · Day shift',av:'SR',c:'#5b57e6'},
+  agents:{n:'ITForce Agents',r:'Autonomous workforce · overnight',av:'✦',c:'#3B82C4'},
+};
+const av=(p,size=30)=>`<div class="avatar" style="background:${p.c};width:${size}px;height:${size}px;font-size:${size*0.37}px">${p.av}</div>`;
+const pri=p=>`<span class="pri ${p.toLowerCase()}">${p}</span>`;
+const MODES={inputs:'Inputs Required',approvals:'Approvals',verify:'Verify & Close',watch:'Watch',cluster:'Cluster',auto:'Autonomous'};
+const mode=m=>`<span class="mode ${m}"><span class="d"></span>${MODES[m]||m}</span>`;
+const tag=t=>`<span class="tag">${t}</span>`;
+const chip=t=>`<span class="chip">${t}</span>`;
+
+/* ============ frame shells ============ */
+function topbar(url,label){
+  return `<div class="topbar">
+    <span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
+    <span class="url">${url}</span>
+    <span style="font-size:11px;color:var(--slate400)">${label}</span></div>`;
+}
+function deskFrame({url,label,rail,center,copilot,pane}){
+  return `<div class="frame-desktop">${topbar(url,label)}
+    <div class="app" style="position:relative">
+      ${rail||''}
+      <div class="center">${center}</div>
+      ${pane||copilot||''}
+    </div></div>`;
+}
+
+/* ---- Sarah CSA rail ---- */
+function railSarah(active){
+  const it=(lbl,ct,alert,key,act)=>`<div class="navitem ${act?'active':''}" data-nav="${key}">${lbl}${ct!=null?`<span class="ct ${alert?'alert':''}">${ct}</span>`:''}</div>`;
+  return `<aside class="rail">
+    <div class="rail-top"><div class="logo">IF</div><div><div style="font-size:14px;font-weight:700;letter-spacing:-.3px;line-height:1">ITForce</div><div style="font-size:10.5px;color:var(--slate400);margin-top:2px">TechGuard MSP</div></div></div>
+    <nav>
+      <div class="navitem ${active==='dash'?'active':''}" data-nav="go:sarah-dash">◧ Dashboard</div>
+      <div class="navgrp">Act on</div>
+      ${it('◆ Inputs Required',2,false,'sarah:inputs',active==='inputs')}
+      ${it('✓ Approvals',2,false,'sarah:approvals',active==='approvals')}
+      ${it('● Verify &amp; Close',1,false,'sarah:verify',active==='verify')}
+      <div class="navgrp">Escalations</div>
+      ${it('◈ High-impact &amp; clusters',2,true,'sarah:cluster',active==='cluster')}
+      <div class="navgrp">Monitor</div>
+      ${it('👁 Watch',3,false,'sarah:watch',active==='watch')}
+      ${it('▤ All open','1,284',false,'sarah:allopen',active==='allopen')}
+      <div class="navgrp">System</div>
+      ${it('✦ Agents',5,false,'sarah:agents',active==='agents')}
+    </nav>
+    <div class="rail-user">${av(A.sarah)}<div><div style="font-size:12px;font-weight:600">Sarah Rose</div><div style="font-size:10.5px;color:var(--slate500)">CSA · Day shift</div></div></div>
+  </aside>`;
+}
+/* ---- co-pilot ---- */
+function copilot(persona,qa){
+  const rows=qa.map(m=>m.q?`<div class="cp-q">${m.q}</div>`:`<div class="cp-a">${m.a}</div>${m.src?`<div class="cp-src">Sources: ${m.src}</div>`:''}`).join('');
+  return `<aside class="copilot">
+    <div class="cp-head"><div style="display:flex;align-items:center;gap:9px"><div class="logo" style="width:26px;height:26px;font-size:11px">✦</div><div><div style="font-size:13px;font-weight:700">Ask ITForce</div><div style="font-size:11px;color:var(--slate500)">co-pilot · grounded in case data</div></div></div></div>
+    <div class="cp-body">${rows}</div>
+    <div class="cp-foot"><div class="cp-input">Ask about this account or incident…</div></div>
+  </aside>`;
+}
+function notifCenter(items,open){
+  const n=items.filter(i=>i.new).length;
+  return `<div class="notif-wrap">
+    <div class="notif-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#586471" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>${n?`<span class="cnt">${n}</span>`:''}</div>
+    ${open?`<div class="notif-panel">
+      <div style="padding:11px 14px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;font-weight:700">Notifications</span><span style="font-size:10.5px;color:var(--slate400)">${n} new</span></div>
+      ${items.map(i=>`<div class="notif-item ${i.nav?'clk':''}" ${i.nav?`data-nav="${i.nav}"`:''} style="${i.new?'background:#fbfbff':''}"><span class="nd" style="background:${i.c}"></span><div style="flex:1"><div style="font-size:12px;color:var(--ink2);line-height:1.4">${i.m}</div><div style="font-size:10px;color:var(--slate400);margin-top:2px">${i.t}</div></div>${i.new?'<span class="newpill">NEW</span>':''}${i.nav?'<span style="font-size:13px;color:var(--slate400);align-self:center">›</span>':''}</div>`).join('')}
+    </div>`:''}
+  </div>`;
+}
+
+/* ============ shared CCTV agent trace ============ */
+function cctvTrace(){
+  const node=(name,time,find,extra,hand)=>`<div class="tnode"><div class="tdot done">✓</div>
+    <div class="tname">${name} <span class="ttime">${time}</span></div>
+    <div class="tfind">${find}</div>${extra||''}${hand?`<div class="thand"><span>↳</span><span>${hand}</span></div>`:''}</div>`;
+  return `<div class="trace">
+    ${node('✦ Diagnostic Agent · monitor &amp; detect','02:13',
+      'Scheduled footage-integrity sweep — every 5 minutes — caught C-07 <b>online with PoE normal, but its last footage write is 11 min stale</b> (02:02). Heartbeat green, recording red.',
+      '<div class="insight"><b>The trap: uptime is green, compliance is red.</b> Legacy monitoring watches device heartbeat and sees nothing wrong. ITForce monitors whether footage is actually committing to storage — the thing the customer audit depends on.</div>',
+      '<b>Handoff → Intake Agent:</b> footage anomaly detected — log &amp; scope it.')}
+    ${node('✦ Intake Agent · triage &amp; scope','02:14',
+      'Opened <b>CCTV-4421</b> and started the SLA + footage-gap clocks from the last good write (02:02). Identified C-07 as covering the <b>Controlled Substances Cage</b> — a compliance-critical zone — and marked the incident <b>P1</b> even though the device heartbeat is green.','',
+      '<b>Handoff → Diagnostic Agent:</b> P1 compliance-critical, needs root cause.')}
+    ${node('✦ Diagnostic Agent · troubleshoot','02:19',
+      'Eliminated causes — PoE draw, network, NVR disk health, storage queue, and other cameras on the same NVR. Only C-07 affected: <b>recording stream got stuck during a scheduled retention-policy rotation</b>. Confidence 93%.','',
+      '<b>Handoff → Resolution Agent:</b> 93%-confidence root cause.')}
+    ${node('✦ Resolution Agent · remote fix','02:24',
+      'Ran the approved <b>Recording Stream Recovery</b> runbook — cleared the stale stream lock, restarted the recording binding for C-07, forced a new segment, reattached the retention policy. Touched only C-07, never the NVR or other compliance cameras.','',
+      '<b>Handoff → Resolution Agent:</b> completed runbook, verify recovery.')}
+    ${node('✦ Resolution Agent · verify','02:40',
+      'Did not self-close. Watched new footage write at 02:25, 02:30, 02:35, 02:40 — timestamp stays under 5 min old. Recording continuity restored.','',
+      '<b>Handoff → Communications Agent:</b> verified recovery + footage-gap evidence.')}
+    ${node('✦ Communications Agent · draft','02:41',
+      'Drafted the customer notification — timing, root cause, resolution, time to resolution, the <b>02:02–02:25 footage gap (23 min)</b>, and redundancy coverage from C-08. Footage-gap disclosure is compliance-sensitive, so it <b>queues for CSA approval</b> rather than sending.','',
+      '<b>Handoff → Sarah Rose (CSA):</b> drafted notification, awaiting approval at 08:05.')}
+  </div>`;
+}
+
+/* ============ floor-plan site map (lives inside the ticket) ============ */
+function floorMap(state){
+  const ok = state==='restored';
+  const cdot=(id,kind)=>{
+    let cls='cdot'; if(kind==='focus'){cls+=' focus'+(ok?' ok':'');} else if(kind==='redund'){cls+=' redund';}
+    const pulse=(kind==='focus'&&!ok)?' gappulse':'';
+    return `<span class="${cls}"><span class="d${pulse}"></span>${id}</span>`;
+  };
+  const room=(lab,cams,extra)=>`<div class="room ${extra||''}"><div class="rlab">${lab}</div><div class="cams">${cams.map(([id,k])=>cdot(id,k||'')).join('')}</div></div>`;
+  return `<div class="floor">
+    <div class="ptag">Perimeter</div>
+    <div class="pcams">${[['C-14'],['C-15'],['C-16'],['C-17'],['C-18']].map(([id])=>cdot(id,'')).join('')}</div>
+    <div class="rooms">
+      ${room('Receiving',[['C-01'],['C-02'],['C-03']])}
+      ${room('Cold Room A',[['C-04'],['C-05'],['C-06']])}
+      ${room('Controlled Substances Cage',[['C-07','focus'],['C-08','redund'],['C-09']],'cage'+(ok?' ok':''))}
+      ${room('Dispatch Bay',[['C-10'],['C-11'],['C-12'],['C-13']],'span3')}
+    </div>
+    <div class="maplegend">
+      <span><i style="background:var(--heal)"></i>Recording</span>
+      <span><i style="background:${ok?'var(--heal)':'var(--crit)'}"></i>C-07 ${ok?'restored 02:25':'recording gap'}</span>
+      <span><i style="background:var(--indigo600)"></i>C-08 redundant coverage</span>
+    </div>
+  </div>`;
+}
+
+/* ============ Sarah CSA command center (morning) ============ */
+function sarahCockpit(){
+  const notif=notifCenter([
+    {m:'<b>Resolved overnight</b> — CCTV-4421 Atlas Logistics · awaiting your communication approval',t:'since 02:41',c:'var(--warn)',new:true,nav:'go:incident'},
+    {m:'Verify & Close passed — Globe Finance failover',t:'5h ago',c:'var(--heal)',new:false,nav:'sarah:verify'},
+  ],true);
+  const center=`<div class="center-scroll">
+    <div style="display:flex;align-items:flex-start;gap:14px">
+      <div style="flex:1"><h1 class="page">Good morning, Sarah Rose 🌤</h1><div class="sub">CSA · Day shift · 08:05</div></div>
+      <div style="display:flex;gap:8px;align-items:center">${tag('All service lines ▾')}${tag('Today ▾')}${notif}</div>
+    </div>
+    <div style="display:flex;gap:22px;border-bottom:1px solid var(--border);margin:18px 0 20px"><div style="padding-bottom:10px;font-size:13px;color:var(--slate500)">Overview</div><div style="padding-bottom:10px;font-size:13px;font-weight:700;border-bottom:2px solid var(--ink)">My Work <span style="color:var(--slate400)">5</span></div></div>
+
+    <div class="eyebrow" style="margin-bottom:11px">Your action queues</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px">
+      ${[['inputs','2','classify &amp; route','• 1 P2 • 1 P3','sarah:inputs'],['approvals','2','communications &amp; approvals','• 1 P1 • 1 P3','sarah:approvals'],['verify','1','verify &amp; close','• 1 P3','sarah:verify']].map(([m,n,s,b,nav])=>`
+        <div class="card clk" data-nav="${nav}" style="padding:15px 16px">${mode(m)}<div style="font-size:32px;font-weight:700;letter-spacing:-1px;margin:10px 0 2px">${n}</div><div style="font-size:12px;color:var(--slate500)">${s}</div><div style="font-size:11px;color:var(--slate400);margin-top:7px">${b}</div></div>`).join('')}
+    </div>
+    <div class="card clk" data-nav="sarah:cluster" style="padding:14px 16px;display:flex;align-items:center;gap:14px;border-left:3px solid var(--crit);margin-bottom:14px">
+      <div style="font-size:30px;font-weight:700;letter-spacing:-1px;color:var(--crit)">2</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">High-impact &amp; clusters</div><div style="font-size:12px;color:var(--slate500)">1 P1 incident · 1 cluster detected · need escalation handling</div></div>
+      <div style="font-size:18px;color:var(--slate400)">→</div>
+    </div>
+    <div class="card clk" data-nav="sarah:watch" style="padding:13px 16px;display:flex;align-items:center;gap:13px;background:#f3f8fd;border-left:3px solid var(--watch-dot);margin-bottom:22px">
+      ${mode('watch')}<div style="flex:1;font-size:12.5px;color:var(--slate600)"><b class="b7" style="color:var(--ink)">3 tickets</b> running autonomously right now — no action unless promoted.</div>${tag('By ticket →')}
+    </div>
+    <div class="eyebrow" style="margin-bottom:11px">Slice your queue by priority</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      ${[['5','action items','across Inputs · Approvals · Verify','--ink'],['1','P1','compliance / outage critical','--crit'],['1','P2','degraded, time-sensitive','--warn'],['3','P3','routine, low blast radius','--slate500']].map(([n,t,s,c])=>`<div class="metric"><div class="val" style="color:var(${c})">${n}</div><div class="lab" style="font-weight:700;color:var(${c});margin-top:4px">${t}</div><div class="sub">${s}</div></div>`).join('')}
+    </div>
+  </div>`;
+  const cp=copilot(A.sarah,[
+    {q:'What landed for me overnight?'},
+    {a:'One thing, and it’s already fixed: CCTV-4421 at Atlas Logistics. A camera in the Controlled Substances Cage stopped writing footage at 02:02. The agents detected, diagnosed and resolved it by 02:40. All that’s left for you is approving the compliance communication.',src:'CCTV-4421'},
+  ]);
+  return deskFrame({url:'app.itforce.techguard.io/csa',label:'ITForce · CSA · Dashboard',rail:railSarah('dash'),center,copilot:cp});
+}
+
+/* ============ incident detail (CCTV-4421) ============ */
+function evidenceCard(){
+  const row=(ok,nm,vv)=>`<div class="ev"><div class="ick" style="background:${ok?'var(--heal)':'var(--crit)'}">${ok?'✓':'!'}</div><div class="nm">${nm}</div><div class="vv" style="color:${ok?'var(--heal)':'var(--crit-fg)'}">${vv}</div></div>`;
+  return `<div class="card" style="padding:13px 15px">
+    ${row(true,'Camera powered','PoE normal')}
+    ${row(true,'Camera reachable','heartbeat OK')}
+    ${row(true,'NVR storage','healthy')}
+    ${row(true,'Site network','no outage')}
+    ${row(true,'Other NVR cameras','unaffected')}
+    ${row(false,'Recording stream','stuck after retention rotation')}
+  </div>`;
+}
+function summaryTab(){
+  return `<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="eyebrow" style="margin:0">Agent trace</span><span style="font-size:10.5px;color:var(--slate400)">which agents ran, what they found, the handoffs</span></div>
+      ${cctvTrace()}
+    </div>
+    <div>
+      <div class="card" style="padding:11px 13px;margin-bottom:14px;background:#f4faf7;border-color:#cce5d8">
+        <div style="display:flex;justify-content:space-between;gap:10px;padding-bottom:7px;border-bottom:1px solid #dcebe3"><span style="font-size:11px;color:var(--slate500)">Status</span><span style="font-size:12px;font-weight:700;color:var(--heal)">Resolved &amp; verified 02:40</span></div>
+        <div style="display:flex;justify-content:space-between;gap:10px;padding-top:7px"><span style="font-size:11px;color:var(--slate500)">Next action</span><span style="font-size:12px;font-weight:700;color:var(--ink)">Approve &amp; send communication</span></div>
+      </div>
+      <div class="eyebrow" style="margin-bottom:10px">Evidence — why “online” isn’t “healthy”</div>
+      ${evidenceCard()}
+      <div class="card" style="padding:11px 13px;margin:14px 0;background:var(--warn-bg);border-color:#eaddc0">
+        <div style="font-size:11px;font-weight:700;color:var(--warn-fg);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Footage gap</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">02:02–02:25 · <b>23 min</b> · C-08 overlapping coverage</div>
+      </div>
+      <div class="eyebrow" style="margin-bottom:10px">Details</div>
+      <div class="card" style="padding:13px 15px">
+        ${[['Account','Atlas Logistics'],['Site','Meridian cold-storage'],['Camera / zone','C-07 · Controlled Substances Cage'],['Root cause','Retention-rotation recording fault'],['Resolution','Recording Stream Recovery runbook'],['Time to resolution','27 min from detection']].map(([k,v])=>`<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function sitemapTab(){
+  return `<div style="max-width:660px">
+    <div class="card" style="padding:11px 14px;margin-bottom:14px;background:var(--warn-bg);border-color:#eaddc0;display:flex;align-items:flex-start;gap:10px">
+      <span style="font-size:14px">🗺</span>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.5">Meridian cold-storage floor plan · 18 cameras · 5 zones. <b>C-07</b> in the Controlled Substances Cage lost recording <b>02:02–02:25 (23 min)</b>; <b>C-08</b> held overlapping coverage of the cage entrance. Recording restored &amp; verified at 02:40.</div>
+    </div>
+    ${floorMap('restored')}
+  </div>`;
+}
+function commDraft(){
+  return `Hi Tom,<br><br>At 02:13am, TechGuard detected a recording interruption for Camera C-07 covering the Controlled Substances Cage at your Meridian facility. The camera remained online, but its footage stream was not being written to storage.<br><br>Our autonomous monitoring opened an incident, identified the root cause as a scheduled retention-policy rotation that left the recording stream uncommitted, and restored recording through the approved recovery runbook. Recording resumed at 02:25am and held through checks at 02:30, 02:35 and 02:40.<br><br><b>Footage gap:</b> 02:02–02:25am, 23 minutes.<br><b>Time to resolution:</b> 27 minutes from detection — recording restored at 02:25am, continuity verified through 02:40am.<br><b>Redundancy:</b> Camera C-08 maintained overlapping coverage of the cage entrance throughout.<br><b>Current status:</b> C-07 online and footage writing normally.<br><br>We are also reviewing the retention-policy rotation for the other controlled-zone cameras before the next scheduled rotation.`;
+}
+function commTab(sent){
+  return `<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px">
+    <div>
+      <div class="card" style="padding:12px 14px;margin-bottom:14px;border-left:3px solid var(--indigo600);background:var(--indigo25)">
+        <div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:14px">✦</span><div style="font-size:12px;color:var(--indigo700);line-height:1.5"><b>Review this draft.</b> The Communications Agent wrote it from live incident state. A footage-gap disclosure carries audit exposure — outbound client communication is always a CSA approval, never an autonomous send.</div></div>
+      </div>
+      <div class="eyebrow" style="margin-bottom:9px">Draft · Communications Agent</div>
+      <div class="card" style="padding:14px 15px;background:#fbfbfd;font-size:12.5px;color:var(--ink2);line-height:1.6;border:1px solid var(--indigo300)">
+        <div style="font-size:11px;color:var(--slate500);margin-bottom:8px"><b>Subject:</b> TechGuard resolved overnight CCTV recording interruption — Meridian Controlled Storage</div>
+        ${commDraft()}
+      </div>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:10px">${sent?'Outcome':'Decision'}</div>
+      <div class="card" style="padding:14px 16px">
+        ${sent
+          ? `<div style="font-size:13px;font-weight:700;color:var(--heal);margin-bottom:6px">✓ Approved &amp; sent</div><div style="font-size:12px;color:var(--ink2);line-height:1.5">Disclosure delivered to Tom Avery (Compliance &amp; Facilities) via portal + email at 08:08. CCTV-4421 closed with the full evidence trail.</div><button class="btn btn-out" data-action="to-customer" style="width:100%;margin-top:13px">See client view</button>`
+          : `<div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px">Approving sends the disclosure to Atlas’s compliance contact and closes the incident with the full evidence trail.</div><button class="btn btn-dark" data-action="send-comms" style="width:100%">Approve &amp; send</button><button class="btn btn-ghost" style="width:100%;margin-top:9px">Edit draft</button>`}
+      </div>
+      <div class="eyebrow" style="margin:16px 0 8px">Grounded in</div>
+      <div class="card" style="padding:4px 14px">
+        ${[['Account','Atlas Logistics'],['Recipient','Tom Avery · Compliance &amp; Facilities'],['Verified facts','Recovery verified · gap 23 min · C-08 redundancy'],['Tone','Factual · compliance-grade'],['Channel','Portal + email']].map(([k,v])=>`<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function ticketDetail(tab){
+  const sent=commsSent;
+  const tabs=[['summary','Summary'],['sitemap','Site map'],['comm','Communication']];
+  const tabbar=`<div class="tabbar">${tabs.map(([k,l])=>`<div class="tab ${k===tab?'on':''}" data-tab="${k}">${l}${(k==='comm'&&!sent)?'<span class="tct">1</span>':''}</div>`).join('')}</div>`;
+  const body = tab==='sitemap'?sitemapTab() : tab==='comm'?commTab(sent) : summaryTab();
+  const center=`<div class="center-scroll">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px"><span style="font-size:11px;color:var(--slate400);font-weight:600">CCTV-4421 · Atlas Logistics</span><span style="font-size:11px;color:var(--slate400)">· Managed CCTV · camera incident</span></div>
+    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px">${pri('P1')}<span class="attn heal">Resolved overnight</span>${sent?mode('verify'):mode('approvals')}<span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--slate500)">detected 02:13 · resolved 02:40</span></div>
+    <h1 class="page" style="font-size:23px;max-width:700px;line-height:1.2">Camera online but recording failed — C-07, Controlled Substances Cage</h1>
+    <div class="sub">Atlas Logistics · Meridian cold-storage · retention-rotation recording fault</div>
+    ${tabbar}
+    ${body}
+  </div>`;
+  const cpByTab={
+    summary:[{q:'Summarise CCTV-4421 for me.'},{a:'C-07 stayed online but stopped writing footage at 02:02 during a retention rotation. Diagnosed at 93%, fixed via the Recording Stream Recovery runbook, recording verified 02:25–02:40. Footage gap 23 min; C-08 covered the entrance. Only the communication needs you.',src:'CCTV-4421'}],
+    sitemap:[{q:'Which camera failed and was the zone covered?'},{a:'C-07 in the Controlled Substances Cage. C-08 overlaps the cage entrance and kept recording throughout the 23-minute gap, so the zone was never fully blind.',src:'CCTV-4421 · site map'}],
+    comm:[{q:'What am I signing off on here?'},{a:'A compliance-sensitive disclosure: a 23-minute footage gap in a controlled-substances zone, plus the root cause, fix, and C-08 redundancy. The facts are agent-verified; you own the customer-trust moment and the sign-off that closes the incident.',src:'CCTV-4421'}],
+  };
+  return deskFrame({url:'app.itforce.techguard.io/csa/tickets/CCTV-4421',label:'ITForce · CSA · CCTV-4421',rail:railSarah('approvals'),center,copilot:copilot(A.sarah,cpByTab[tab]||cpByTab.summary)});
+}
+
+/* ============ Atlas customer portal ============ */
+function atlasPortal(state){
+  const morning=state==='morning';
+  const svc=(name,status,sub,color)=>`<div class="card" style="padding:14px 16px;border-top:3px solid ${color}"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:700">${name}</div><span class="livedot"></span></div><div style="font-size:12px;font-weight:600;color:${color};margin-top:6px">${status}</div><div style="font-size:11px;color:var(--slate500);margin-top:3px">${sub}</div></div>`;
+  const cctvCard=morning
+    ? `<div class="card" style="padding:14px 16px;border-top:3px solid var(--heal)"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:700">Managed CCTV</div><span class="livedot"></span></div><div style="font-size:12px;font-weight:600;color:var(--heal);margin-top:6px">Healthy · 18/18 recording</div><div style="font-size:11px;color:var(--slate500);margin-top:3px">Overnight interruption resolved · C-07</div></div>`
+    : svc('Managed CCTV','Healthy · 18/18 online','All cameras streaming','#18935f');
+  const feed=morning
+    ? [['08:08','Security communication received — C-07 recording interruption resolved','var(--heal)'],['02:40','Recording continuity restored &amp; verified','var(--heal)'],['02:13','Footage-integrity anomaly detected — C-07','var(--warn)']]
+    : [['02:13','Footage-integrity sweep — 18 cameras','var(--agent)'],['02:08','NVR storage healthy · retention policies nominal','var(--heal)'],['02:03','CCTV 18/18 online · cold-chain telemetry nominal','var(--heal)']];
+  const thread=morning
+    ? `
+        <div class="bubble-them">Good morning, Tom — Meridian cold-storage is green again. Here's what happened overnight while you were away.</div>
+        <div class="bubble-them" style="border:1px solid #cce5d8;background:#f0f8f4"><b>Overnight CCTV recording interruption — resolved.</b><br>At 02:13am we detected that Camera C-07 (Controlled Substances Cage) was online but had stopped writing footage. We traced it to a retention-policy rotation and restored recording via the approved runbook by 02:25am.<br><br><b>Footage gap:</b> 02:02–02:25 (23 min). C-08 held overlapping coverage of the cage entrance. We're reviewing the rotation on the other controlled-zone cameras as a precaution. <span style="color:var(--slate400);font-size:11px">· 08:08</span></div>`
+    : `
+        <div class="bubble-them">Evening, Tom — Meridian cold-storage is green across the board. All 18 cameras online and recording, cold-chain telemetry nominal.</div>
+        <div class="bubble-them"><b>✦ Monitoring agent</b> — Our footage-integrity sweep runs every 5 minutes. We check that footage is actually committing to storage, not just that cameras are powered. Nothing needs your attention tonight — we'll reach out only if something does. <span style="color:var(--slate400);font-size:11px">· 02:13</span></div>`;
+  const portalNotif=notifCenter(morning
+    ? [{m:'<b>New communication from TechGuard</b> — overnight CCTV recording interruption resolved (C-07)',t:'08:08',c:'var(--heal)',new:true},{m:'Compliance report available — footage-integrity log, June',t:'06:00',c:'var(--slate400)',new:false}]
+    : [{m:'Meridian cold-storage — all services healthy',t:'02:00',c:'var(--heal)',new:false}],false);
+  const toast=morning?`<div class="toast">
+    <span class="tclose">✕</span>
+    <div style="display:flex;align-items:flex-start;gap:11px">
+      <div class="logo" style="width:30px;height:30px;background:var(--teal);font-size:12px;flex-shrink:0">TG</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><span style="font-size:12.5px;font-weight:700">TechGuard</span><span class="newpill" style="background:var(--heal)">NEW</span><span style="margin-left:auto;font-size:10px;color:var(--slate400)">just now · 08:08</span></div>
+        <div style="font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:3px">Overnight CCTV recording interruption — resolved</div>
+        <div style="font-size:11.5px;color:var(--slate600);line-height:1.45">C-07 (Controlled Substances Cage) stopped writing footage at 02:02; we restored recording by 02:25. Footage gap 02:02–02:25 (23 min) — C-08 held overlapping coverage. Full disclosure in your portal &amp; inbox.</div>
+      </div>
+    </div>
+  </div>`:'';
+  return `<div class="frame-desktop" style="position:relative">${topbar('portal.techguard.io/atlas-logistics','TechGuard customer portal')}
+    ${toast}
+    <div style="background:#fff;border-bottom:1px solid var(--hairline);padding:14px 30px;display:flex;align-items:center;gap:14px">
+      <div class="logo" style="background:var(--teal)">TG</div>
+      <div><div style="font-size:14px;font-weight:700">TechGuard</div><div style="font-size:11px;color:var(--slate500)">Self-Serve Portal</div></div>
+      <div style="margin-left:30px;display:flex;gap:22px;font-size:13px;font-weight:600;color:var(--ink)"><span style="color:var(--indigo600)">My Services</span><span class="mut">Requests</span><span class="mut">Compliance Reports</span><span class="mut">Billing</span></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--slate600)">${portalNotif}<span>Atlas Logistics</span> ${av(A.atlas,28)}</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:24px 30px 36px;background:var(--canvas)">
+      <h1 class="page">${morning?'Good morning, Tom':'Meridian cold-storage'}</h1>
+      <div class="sub" style="margin-bottom:18px">Atlas Logistics · Meridian cold-storage facility · TechGuard Managed Services — ⏱ ${morning?'08:12':'02:13'} local</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div class="eyebrow" style="margin:0">Your services</div><span style="font-size:10.5px;color:var(--slate400)">· <span class="livedot" style="vertical-align:middle"></span> continuously diagnosed</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+        ${cctvCard}
+        ${svc('Managed Network','Healthy','Primary + backup nominal','#18935f')}
+        ${svc('Cloud Website Ops','Healthy','atlas-logistics.com','#18935f')}
+      </div>
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px">
+        <div class="card" style="padding:18px 20px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px"><div class="logo" style="width:26px;height:26px;background:var(--teal);font-size:11px">✦</div><div style="flex:1"><div style="font-size:13px;font-weight:700">TechGuard CCTV monitoring</div><div style="font-size:11px;color:var(--agent)"><span class="livedot" style="vertical-align:middle"></span> Always-on · footage integrity, not just heartbeat</div></div></div>
+          <div style="display:flex;flex-direction:column;gap:10px">${thread}</div>
+        </div>
+        <div class="card" style="padding:18px 20px;align-self:start">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="livedot"></span><div class="eyebrow" style="margin:0">Continuous diagnostics · running 24/7</div></div>
+          <div style="font-size:12px;color:var(--slate600);line-height:1.5;margin-bottom:13px">TechGuard agents probe every Meridian service on a rolling cycle — including footage integrity, not just heartbeat. You don't have to report a problem for us to see it.</div>
+          <div style="display:flex;justify-content:space-between;background:var(--canvas);border:1px solid var(--hairline);border-radius:10px;padding:9px 12px;margin-bottom:14px">
+            <div><div style="font-size:18px;font-weight:700;color:var(--heal);letter-spacing:-.4px">312</div><div style="font-size:10px;color:var(--slate400)">checks / hr</div></div>
+            <div><div style="font-size:18px;font-weight:700;letter-spacing:-.4px">3</div><div style="font-size:10px;color:var(--slate400)">services watched</div></div>
+            <div><div style="font-size:18px;font-weight:700;color:var(--heal);letter-spacing:-.4px">0</div><div style="font-size:10px;color:var(--slate400)">open anomaly</div></div>
+          </div>
+          <div class="eyebrow" style="margin-bottom:8px">Live activity · Meridian</div>
+          <div style="display:flex;flex-direction:column;gap:0">
+            ${feed.map(([t,m,c])=>`<div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--hairline)"><span style="width:6px;height:6px;border-radius:50%;background:${c};margin-top:5px;flex-shrink:0"></span><div style="flex:1"><div style="font-size:11.5px;color:var(--ink2);line-height:1.4">${m}</div><div style="font-size:10px;color:var(--slate400)">${t}</div></div></div>`).join('')}
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--hairline)"><div class="eyebrow" style="margin-bottom:7px">Your TechGuard plan</div><div style="font-size:12px;color:var(--slate600);line-height:1.6">Managed CCTV · managed network · cloud website ops · 24/7 footage-integrity monitoring · compliance-grade disclosure on every gap.</div></div>
+        </div>
+      </div>
+    </div></div>`;
+}
+
+/* ============ outcome ============ */
+function outcome(){
+  const lane=(p,who,act,m)=>`<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--hairline)">${av(p,32)}<div style="flex:1"><div style="font-size:12.5px;font-weight:700">${who}</div><div style="font-size:11.5px;color:var(--slate500)">${act}</div></div>${mode(m)}</div>`;
+  const center=`<div class="center-scroll" style="max-width:760px;margin:0 auto">
+    <div class="eyebrow" style="margin-bottom:8px">Story 1 · Proactive CCTV · CCTV-4421 — resolved 02:40, communicated 08:08</div>
+    <h1 class="page" style="font-size:29px;max-width:660px;line-height:1.14">A compliance failure behind a green light — detected, fixed and disclosed before the customer ever knew.</h1>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0 26px">
+      ${[['27m','detect → resolve','var(--heal)','fully autonomous'],['1','human touchpoint','var(--ink)','communication approval'],['0','customer reports','var(--heal)','never had to notice'],['23m','footage gap','var(--warn)','disclosed in full']].map(([n,l,c,s])=>`<div class="metric"><div class="val" style="color:${c}">${n}</div><div class="lab" style="font-weight:700;margin-top:4px">${l}</div><div class="sub">${s}</div></div>`).join('')}
+    </div>
+    <div class="card" style="padding:6px 20px;margin-bottom:22px">
+      ${lane(A.agents,'Agents · overnight','Detected the stale write, triaged P1, ran the recovery runbook, verified recording, drafted the disclosure','auto')}
+      ${lane(A.sarah,'Sarah · CSA','Arrived to a resolved incident; approved the one compliance-sensitive message and closed it','approvals')}
+      ${lane(A.atlas,'Atlas · Client','Never reported a thing — received a full, audit-grade disclosure with the gap and redundancy spelled out','verify')}
+    </div>
+    <div class="card" style="padding:18px 20px;background:#1b1d23;color:#fff;border:none">
+      <div style="font-size:15px;font-weight:600;line-height:1.5">No customer report, no field visit, no IT Ops gate. The agents monitor footage integrity — not just a heartbeat — fix what a green light hides, verify the recovery, and surface the invisible work to the customer. A human enters exactly once, where compliance and trust live.</div>
+    </div>
+  </div>`;
+  return deskFrame({url:'app.itforce.techguard.io/incident/CCTV-4421/closed',label:'ITForce · CCTV-4421 · Resolved',rail:railSarah(''),center});
+}
+
+/* ============ recap (wow) — the screens, end to end ============ */
+function recap(){
+  const mini=(p,title,url,rows,foot)=>`<div class="mini">
+    <div class="mini-head">${av(p,26)}<div style="flex:1"><div style="font-size:12px;font-weight:700">${title}</div><div style="font-size:10px;color:var(--slate400)">${url}</div></div><span class="mode verify" style="font-size:9.5px;padding:2px 7px"><span class="d"></span>Resolved</span></div>
+    <div class="mini-body">${rows.map(r=>`<div class="mini-row"><span style="width:6px;height:6px;border-radius:50%;background:${r[1]};flex-shrink:0"></span><span style="flex:1">${r[0]}</span><span class="b6" style="color:var(--ink2)">${r[2]||''}</span></div>`).join('')}</div>
+    <div style="padding:9px 13px;border-top:1px solid var(--hairline);font-size:10.5px;color:var(--slate500)">${foot}</div>
+  </div>`;
+  const center=`<div class="center-scroll" style="max-width:940px;margin:0 auto">
+    <div class="eyebrow" style="margin-bottom:8px">CCTV-4421 · Proactive CCTV resolution — detected 02:13 · resolved 02:40 · communicated 08:08</div>
+    <h1 class="page" style="font-size:25px;max-width:700px;line-height:1.15">One invisible failure, three screens, one outcome — fixed before the customer ever knew.</h1>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 18px">
+      ${mini(A.agents,'Agents · overnight','itforce/incident',[['Footage-integrity sweep','var(--agent)','Detected 02:13'],['Recovery runbook','var(--heal)','Fixed 02:24'],['Recording verified','var(--heal)','02:25–02:40'],['Disclosure drafted','var(--heal)','Queued for CSA']],'Detected, fixed &amp; verified — zero humans awake')}
+      ${mini(A.sarah,'Sarah · CSA','itforce/csa',[['CCTV-4421','var(--heal)','Closed'],['Site map · C-07','var(--heal)','Restored'],['Communication','var(--heal)','Approved &amp; sent']],'Approved the one outbound communication')}
+      ${mini(A.atlas,'Tom · Client','portal.techguard.io',[['Managed CCTV','var(--heal)','18/18 recording'],['Footage gap','var(--warn)','Disclosed in full'],['Communication','var(--heal)','Received 08:08']],'Never filed a ticket · never had to notice')}
+    </div>
+    <div class="card" style="padding:18px 20px;background:#1b1d23;color:#fff;border:none">
+      <div style="font-size:15px;font-weight:600;line-height:1.5">A compliance failure hid behind a green status light. ITForce monitored footage integrity — not just a heartbeat — caught it, fixed it, verified it, and surfaced the invisible work as an audit-grade disclosure. A human entered exactly once, where compliance and trust live.</div>
+    </div>
+  </div>`;
+  return deskFrame({url:'app.itforce.techguard.io/incident/CCTV-4421/recap',label:'ITForce · CCTV-4421 · Recap',rail:railSarah(''),center});
+}
+
+/* ============ generic explore (sidebar targets) ============ */
+function genericList(title,sub,modeKey,rows,active){
+  const center=`<div class="center-scroll">
+    <h1 class="page">${title}</h1><div class="sub" style="margin-bottom:18px">${sub}</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${rows.map(r=>`<div class="qrow clk" ${r.id?`data-row="${r.id}"`:''} style="border-left-color:${r.edge||'var(--indigo500)'}">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">${pri(r.pri)}${mode(modeKey)}${r.isnew?'<span class="newpill">NEW</span>':''}<span style="margin-left:auto;font-size:11px;color:var(--slate400)">${r.right||''}</span></div>
+        <div class="ttl" style="margin:4px 0">${r.ttl}</div>
+        <div class="qmeta"><span class="b6" style="color:#3d424d">${r.acct}</span>${(r.meta||[]).map(m=>`<span>${m}</span>`).join('')}</div>
+      </div>`).join('')}
+    </div></div>`;
+  const cp=copilot(A.sarah,[{q:`Summarise my ${title} queue.`},{a:`${rows.length} item${rows.length>1?'s':''} here. The one to watch is ${rows[0].ttl.replace(/<[^>]+>/g,'')} (${rows[0].acct}).`,src:rows[0].id||title}]);
+  return deskFrame({url:`app.itforce.techguard.io/csa/${active}`,label:`ITForce · ${title}`,rail:railSarah(active),center,copilot:cp});
+}
+function agentsScreen(){
+  const cams=[['C-08','Controlled Substances Cage','next rotation 02:00 Thu'],['C-09','Controlled Substances Cage','next rotation 02:00 Thu'],['C-12','Dispatch Bay (controlled)','next rotation 03:00 Thu'],['C-15','Perimeter (controlled gate)','next rotation 03:00 Thu'],['C-17','Perimeter (controlled gate)','next rotation 03:00 Thu']];
+  const agents=[
+    ['Intake Agent','Captures &amp; logs incidents · classifies · routes','Triage completeness','98.2%',false],
+    ['Diagnostic Agent','Footage-integrity monitoring · root cause &amp; prevention','Diagnostic accuracy','93%',true],
+    ['Resolution Agent','Runs reversible runbooks · verifies recovery','Autonomous resolution','78%',false],
+    ['Communications Agent','Drafts compliance-grade client disclosures','Time to draft','1 min',false],
+    ['Field Service Orchestrator','Dispatch &amp; technician brief — not used this incident','First-visit resolution','92%',false],
+  ];
+  const row=([n,d,k,v,hl])=>`<div class="card ${hl?'':'clk'}" style="padding:14px 16px;display:flex;align-items:center;gap:14px;${hl?'border-color:var(--agent);box-shadow:0 0 0 1px var(--agent);background:var(--agent-bg)':''}">
+    <div style="width:34px;height:34px;border-radius:9px;background:${hl?'var(--agent)':'var(--indigo50)'};color:${hl?'#fff':'var(--indigo700)'};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">✦</div>
+    <div style="flex:1"><div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px">${n}${hl?'<span class="newpill" style="background:var(--agent)">ACTIVE NOW</span>':''}</div><div style="font-size:11.5px;color:var(--slate500)">${d}</div></div>
+    <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:var(--heal)">${v}</div><div style="font-size:10px;color:var(--slate400)">${k}</div></div>
+    <span class="livedot"></span>
+  </div>`;
+  const fwd=`<div class="card" style="padding:15px 17px;border-left:3px solid var(--agent);background:var(--agent-bg)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">${mode('auto')}<span style="font-size:12px;font-weight:700;color:var(--agent-fg)">Forward signal · Diagnostic Agent · from CCTV-4421</span></div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.55;margin-bottom:12px">C-07's recording stream stuck during a scheduled <b>retention-policy rotation</b>. Five other controlled-zone cameras run the same rotation on the same NVR. The agent recommends a pre-emptive recording-binding check on each <b>before its next scheduled rotation</b>, so the fault can't repeat in an audited zone.</div>
+      <div class="eyebrow" style="margin-bottom:8px">Cameras to check before next rotation</div>
+      <div class="card" style="padding:4px 14px;background:#fff">
+        ${cams.map(([id,z,r])=>`<div class="kv"><span class="k" style="color:var(--ink2);font-weight:600">${id}</span><span style="flex:1;font-size:12px;color:var(--slate500);text-align:left;padding-left:16px">${z}</span><span class="v" style="color:var(--warn-fg)">${r}</span></div>`).join('')}
+      </div>
+      <div style="display:flex;gap:10px;margin-top:13px"><button class="btn btn-dark" style="font-size:12px;padding:9px 14px">Schedule preventive check</button><button class="btn btn-out" style="font-size:12px;padding:9px 14px">Add to account health plan</button></div>
+    </div>`;
+  const center=`<div class="center-scroll">
+    <h1 class="page">Agents</h1><div class="sub" style="margin-bottom:18px">Your digital workforce — each agent has a job, KPIs, and a human manager.</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${row(agents[0])}
+      ${row(agents[1])}
+      ${fwd}
+      ${row(agents[2])}
+      ${row(agents[3])}
+      ${row(agents[4])}
+    </div></div>`;
+  return deskFrame({url:'app.itforce.techguard.io/csa/agents',label:'ITForce · Agents',rail:railSarah('agents'),center,copilot:copilot(A.sarah,[{q:'What is the Diagnostic Agent doing now the incident is closed?'},{a:'It turned CCTV-4421 into a forward signal: five other controlled-zone cameras share the same retention rotation, so it recommends a pre-rotation recording-binding check on each before the next rotation — stopping a repeat in an audited zone.',src:'CCTV-4421 · Diagnostic Agent'}])});
+}
+
+/* ============ WALKTHROUGH ENGINE ============ */
+const STORY=[
+  {p:'atlas',t:'02:13am — to the customer, everything looks fine',b:'In Atlas Logistics’ TechGuard portal, every Meridian service shows green and the monitoring chat is calm. Nobody has filed a ticket. The compliance failure is hidden behind a green status light — and behind footage-integrity monitoring that runs whether or not anyone is watching.',render:()=>atlasPortal('night')},
+  {p:'sarah',t:'08:05am — Sarah arrives to a resolved incident, not an emergency',b:'Her CSA dashboard looks like any morning — action queues, escalations, watch. The new item arrives in her notification center: CCTV-4421, resolved overnight, awaiting her communication approval. She clicks the notification to drill in.',render:()=>sarahCockpit()},
+  {p:'sarah',t:'She opens CCTV-4421 — the Summary tab',b:'The ticket opens with tabs. Summary carries the agent trace and the evidence written for trust — camera powered, reachable, storage healthy — then the actual fault: the recording stream stuck after a retention rotation.',render:()=>ticketDetail(ticketTab||'summary')},
+  {p:'sarah',t:'The Site map tab — where C-07 sits and what covered it',b:'A literal floor plan of the Meridian facility. C-07 is highlighted in the Controlled Substances Cage with its 23-minute recording gap, and C-08 is marked as the redundant camera that held overlapping coverage of the cage entrance — so the zone was never fully blind.',render:()=>ticketDetail(ticketTab||'sitemap')},
+  {p:'sarah',t:'The Communication tab — review the draft, approve and send',b:'The Communications Agent drafted a compliance-grade disclosure from live incident state: the gap, the root cause, the fix, the C-08 redundancy. Every outbound client communication is a CSA approval — a footage-gap disclosure carries audit exposure. Sarah reviews the highlighted draft and approves.',render:()=>ticketDetail(ticketTab||'comm')},
+  {p:'atlas',t:'Atlas gets a clear, audit-grade disclosure — never had to notice',b:'Back in the portal, a pop-up notification carries the communication, CCTV shows healthy, and the chat explains exactly what happened: the gap window, the redundancy, and the precaution on the other cage cameras. Atlas never filed a ticket.',render:()=>atlasPortal('morning')},
+  {p:'sarah',t:'The Diagnostic Agent turns the fix into a forward signal',b:'On the Agents page the Diagnostic Agent is highlighted: five other controlled-zone cameras share the same retention rotation, so it recommends a pre-rotation recording-binding check on each before the next rotation — the incident becomes prevention, before the fault can repeat.',render:()=>agentsScreen()},
+  {p:'sarah',t:'One incident, fixed in the dark, surfaced with trust',b:'The close-out: detected, diagnosed, fixed and verified autonomously in 27 minutes overnight; one human touchpoint for the compliance communication; zero customer reports.',render:()=>outcome()},
+  {p:'sarah',t:'The screens, end to end',b:'A recap across every surface — the overnight agents, Sarah’s CSA workspace, and Tom’s client portal — all showing CCTV-4421 resolved, communicated and inside the compliance promise.',render:()=>recap()},
+];
+
+const EXPLORE={
+  'sarah:inputs':{p:'sarah',t:'Inputs Required',b:'Low-confidence or ambiguous cases the agents need a human to classify or route.',render:()=>genericList('Inputs Required','Confirm routing or override classification when confidence is below threshold.','inputs',[
+    {pri:'P2',ttl:'Ambiguous: NVR disk warning or camera fault?',acct:'Harbor Freight Co',meta:['needs classification'],right:'conf 56%',edge:'#B4502A'},
+    {pri:'P3',ttl:'Novel alarm pattern — no runbook match',acct:'Delphi Retail',meta:['CCTV'],right:'conf 49%',edge:'#B4502A'}],'inputs')},
+  'sarah:approvals':{p:'sarah',t:'Approvals',b:'All outbound client communications need your approval.',render:()=>genericList('Approvals','Communications agent drafts; you approve. No outbound client message sends without a CSA.','approvals',[
+    {id:'CCTV-4421',pri:'P1',ttl:'Security communication ready for Atlas Logistics — footage-gap disclosure',acct:'Atlas Logistics',meta:['communication'],right:'ready',isnew:true,edge:'#BD7D12'},
+    {pri:'P3',ttl:'Maintenance window FYI — Harbor Freight',acct:'Harbor Freight Co',meta:['communication'],right:'queued',edge:'#BD7D12'}],'approvals')},
+  'sarah:verify':{p:'sarah',t:'Verify & Close',b:'Confirm resolution criteria and that the client was notified before a case closes.',render:()=>genericList('Verify & Close','Agent cannot self-close — you confirm criteria and notification.','verify',[
+    {pri:'P3',ttl:'Globe Finance failover — confirm notification sent',acct:'Globe Finance Ltd',meta:['network'],right:'1 check left',edge:'#5C8F1E'}],'verify')},
+  'sarah:cluster':{p:'sarah',t:'High-impact & clusters',b:'Critical escalations and detected fleet patterns.',render:()=>genericList('High-impact & clusters','Surface patterns you flag; IT Ops validates the technical correlation.','cluster',[
+    {id:'CCTV-4421',pri:'P1',ttl:'Camera online but recording failed — resolved overnight, communication pending',acct:'Atlas Logistics · Managed CCTV',meta:['high-impact'],right:'awaiting comm.',isnew:true,edge:'#E5484D'},
+    {pri:'P1',ttl:'5 controlled-zone cameras share one retention-rotation risk',acct:'Cluster · Managed CCTV',meta:['detected'],right:'validate',edge:'#BD7D12'}],'cluster')},
+  'sarah:watch':{p:'sarah',t:'Watch',b:'Autonomous resolutions in progress — no action unless promoted.',render:()=>genericList('Watch','Monitor agent-handled autonomous work in progress.','watch',[
+    {pri:'P3',ttl:'SSL renewal in progress',acct:'Meridian Corp',meta:['web'],right:'monitoring',edge:'#3B82C4'},
+    {pri:'P3',ttl:'Failover active — AT&amp;T circuit',acct:'Globe Finance Ltd',meta:['network'],right:'monitoring',edge:'#3B82C4'}],'watch')},
+  'sarah:allopen':{p:'sarah',t:'All open',b:'Everything currently open across your accounts.',render:()=>genericList('All open','1,284 open · curated to what needs a human.','watch',[
+    {id:'CCTV-4421',pri:'P1',ttl:'Camera online but recording failed — Meridian',acct:'Atlas Logistics',meta:['CCTV'],right:'resolved overnight',isnew:true,edge:'#18935f'}],'allopen')},
+  'sarah:agents':{p:'sarah',t:'Agents',b:'Your digital workforce and what each is doing right now.',render:()=>agentsScreen()},
+};
+
+let i=0, commsSent=false, ticketTab=null, viewOverride=null;
+function paint(){
+  const s=viewOverride||STORY[i];
+  document.getElementById('stage').innerHTML=s.render();
+  const p=A[s.p];
+  document.getElementById('p-persona').innerHTML=`${av(p,30)}<div><div class="nm">${p.n}</div><div class="rl">${p.r}</div></div>`;
+  document.getElementById('p-title').textContent=s.t;
+  document.getElementById('p-body').textContent=s.b;
+  document.getElementById('p-count').textContent=String(i+1).padStart(2,'0')+' / '+STORY.length;
+  document.querySelector('#progress i').style.width=((i+1)/STORY.length*100)+'%';
+  document.getElementById('p-back').style.opacity=i===0?.4:1;
+  document.getElementById('p-next').innerHTML=i===STORY.length-1?'Restart ↻':'Next ›';
+  // row / card clicks → open the ticket
+  document.querySelectorAll('[data-row]').forEach(el=>el.addEventListener('click',()=>{
+    if(el.dataset.row==='CCTV-4421'){ viewOverride=null; ticketTab=null; i=2; paint(); }
+  }));
+  // ticket tab switching (stays on the same step)
+  document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>{ ticketTab=el.dataset.tab; paint(); }));
+  // action handlers
+  document.querySelectorAll('[data-action]').forEach(el=>el.addEventListener('click',()=>{
+    const a=el.dataset.action;
+    if(a==='send-comms'){ commsSent=true; ticketTab='comm'; paint(); }
+    else if(a==='to-customer'){ viewOverride=null; ticketTab=null; i=5; paint(); }
+  }));
+  // sidebar nav
+  document.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click',()=>navTo(el.dataset.nav)));
+}
+function navTo(key){
+  const steps={'go:atlas-night':0,'go:sarah-dash':1,'go:incident':2,'go:comm':4,'go:morning':5,'go:agents':6};
+  ticketTab=null;
+  if(key in steps){ viewOverride=null; if(steps[key]<4) commsSent=false; i=steps[key]; if(key==='go:comm') ticketTab='comm'; paint(); return; }
+  if(EXPLORE[key]){ viewOverride=EXPLORE[key]; paint(); return; }
+}
+function go(d){ i=(i+d+STORY.length)%STORY.length; commsSent=(i>=5); ticketTab=null; viewOverride=null; paint(); }
+document.getElementById('p-next').addEventListener('click',()=>{ i===STORY.length-1?(i=0,paint()):go(1); });
+document.getElementById('p-back').addEventListener('click',()=>go(-1));
+document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight')go(1); if(e.key==='ArrowLeft')go(-1); });
+paint();
+</script>
+</body>
+</html>
