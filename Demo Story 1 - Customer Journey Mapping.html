@@ -162,48 +162,38 @@
     <!-- 4 -->
     <div class="stage agent">
       <div class="shead">
-        <div class="sleft"><span class="snum">4</span><span class="sname">Run remote fix</span></div>
+        <div class="sleft"><span class="snum">4</span><span class="sname">Fix &amp; verify recovery</span></div>
         <span class="actor a-agent">Resolution Agent</span>
       </div>
-      <div class="sbody"><span class="ran">Resolution Agent</span> runs the approved <span class="ran">Recording Stream Recovery runbook</span> — clears the stale stream lock, restarts the recording binding for C‑07, forces a new segment and reattaches the retention policy. It touches only C‑07, never the NVR or other compliance cameras. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+      <div class="sbody"><span class="ran">Resolution Agent</span> runs the approved <span class="ran">Recording Stream Recovery runbook</span> — clears the stale stream lock, restarts the recording binding for C‑07, forces a new segment and reattaches the retention policy. It then does not self‑close: it confirms four consecutive clean footage writes at 02:25, 02:30, 02:35 and 02:40 — timestamp stays under 5 minutes old — and marks recording continuity restored. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
     </div>
-    <div class="handoff"><span class="arrow">↓</span> hands off <b>a completed runbook</b> to verification</div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a verified recovery + footage‑gap evidence</b> to the Communications Agent</div>
 
     <!-- 5 -->
     <div class="stage agent">
       <div class="shead">
-        <div class="sleft"><span class="snum">5</span><span class="sname">Verify recovery</span></div>
-        <span class="actor a-agent">Resolution Agent</span>
-      </div>
-      <div class="sbody"><span class="ran">Resolution Agent</span> does not self‑close. It watches new footage write at 02:25, 02:30, 02:35 and 02:40, confirms the timestamp stays under 5 minutes old, and marks recording continuity restored. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
-    </div>
-    <div class="handoff"><span class="arrow">↓</span> hands off <b>a verified recovery + footage‑gap evidence</b> to the Communications Agent</div>
-
-    <!-- 6 -->
-    <div class="stage agent">
-      <div class="shead">
-        <div class="sleft"><span class="snum">6</span><span class="sname">Draft security communication</span></div>
+        <div class="sleft"><span class="snum">5</span><span class="sname">Draft security communication</span></div>
         <span class="actor a-agent">Communications Agent</span>
       </div>
       <div class="sbody"><span class="ran">Communications Agent</span> drafts the customer notification — incident timing, root cause, resolution, time to resolution, the <span class="ran">02:02–02:25 footage gap (23 min)</span>, and redundancy coverage from camera C‑08. Because footage‑gap disclosure is compliance‑sensitive, it <span class="ran">queues for CSA approval</span> rather than sending. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
     </div>
     <div class="handoff"><span class="arrow">↓</span> hands off <b>a drafted customer notification</b> for approval</div>
 
-    <!-- 7 -->
+    <!-- 6 -->
     <div class="stage human">
       <div class="shead">
-        <div class="sleft"><span class="snum">7</span><span class="sname">Morning review, approve &amp; send</span></div>
+        <div class="sleft"><span class="snum">6</span><span class="sname">Morning review, approve &amp; send</span></div>
         <span class="actor a-human">Sarah Rose, Customer Service Agent</span>
       </div>
       <div class="sbody">At 08:05am Sarah Rose logs in to a <span class="ran">resolved overnight incident — not an emergency</span>. She reviews the root cause, time to resolution, footage gap and redundancy note, then <span class="ran">approves the draft, sends it to Atlas, and closes the incident</span>. <span class="badgewrap"><span class="m-chip m-approval">Approval</span> <span class="m-chip m-vclose">Verify &amp; Close</span></span></div>
-      <div class="marker vclose"><span class="ic">✓</span><span><b>Why a human here.</b> All outbound B2B client communications are Approval mode, and footage‑gap disclosure carries compliance exposure — the agent can't self‑send. Sarah owns the customer trust moment and the sign‑off that lets the incident close.</span></div>
+      <div class="marker vclose"><span class="ic">✓</span><span><b>Why a human here.</b> All outbound B2B client communications are Approval mode, and footage‑gap disclosure carries compliance exposure — the agent can’t self‑send. Sarah owns the customer trust moment and the sign‑off that lets the incident close.</span></div>
     </div>
     <div class="handoff"><span class="arrow">↓</span> sends <b>the approved disclosure</b> to the customer</div>
 
-    <!-- 8 -->
+    <!-- 7 -->
     <div class="stage cust">
       <div class="shead">
-        <div class="sleft"><span class="snum">8</span><span class="sname">Customer receives the communication</span></div>
+        <div class="sleft"><span class="snum">7</span><span class="sname">Customer receives the communication</span></div>
         <span class="actor a-cust">Tom Avery, Atlas Logistics</span>
       </div>
       <div class="sbody">At 08:12am Tom Avery opens the TechGuard portal and finds <span class="ran">a communication from the ITForce system</span> waiting in his notification center — sent by the Communications Agent, approved by Sarah. He reads the <span class="ran">02:02–02:25 footage gap (23 min)</span>, the root cause, the fix, and the C‑08 redundancy note. He <span class="ran">never filed a ticket and never noticed the failure</span> — the audit‑grade disclosure simply arrived. <span class="badgewrap"><span class="m-chip m-vclose">Notified</span></span></div>
@@ -211,10 +201,10 @@
     </div>
     <div class="handoff"><span class="arrow">↓</span> hands off <b>a closed, communicated incident</b> to prevention</div>
 
-    <!-- 9 -->
+    <!-- 8 -->
     <div class="stage done">
       <div class="shead">
-        <div class="sleft"><span class="snum">9</span><span class="sname">Post‑fix prevention &amp; self‑learning</span></div>
+        <div class="sleft"><span class="snum">8</span><span class="sname">Post‑fix prevention &amp; self‑learning</span></div>
         <span class="actor a-done">Diagnostic Agent</span>
       </div>
       <div class="sbody"><span class="ran">Diagnostic Agent</span> turns the incident into a forward signal — recommends checking the retention‑policy rotation on the other 5 controlled‑zone cameras <span class="ran">before the next scheduled rotation</span>, surfaced on the account health panel. The full incident trace — what was observed, tried and verified — <span class="ran">feeds the agent learning loop</span> so detection and resolution sharpen over time. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>

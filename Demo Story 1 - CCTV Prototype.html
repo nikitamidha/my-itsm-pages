@@ -36,7 +36,28 @@ body{
 button{font-family:inherit;cursor:pointer;}
 
 /* ===== Stage ===== */
-#stage{position:fixed;inset:0;bottom:84px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0f1014;}
+#stage{position:fixed;inset:0;bottom:84px;display:flex;flex-direction:row;overflow:hidden;background:#0f1014;}
+#jmap{width:292px;flex-shrink:0;height:100%;overflow-y:auto;background:#13151b;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;padding:20px 0 24px;}
+#jmap::-webkit-scrollbar{width:5px;}
+#jmap::-webkit-scrollbar-thumb{background:#2a2d38;border-radius:4px;}
+#jmap-title{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a5068;padding:0 18px 14px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:10px;}
+.jstage{display:flex;align-items:flex-start;gap:10px;padding:7px 18px 7px 14px;cursor:default;transition:background .15s;}
+.jstage.active{background:rgba(99,102,241,.13);}
+.jstage .jnum{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;background:#1e2130;color:#4a5068;border:1.5px solid #252839;transition:all .2s;}
+.jstage.active .jnum{background:#6366f1;color:#fff;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.22);}
+.jstage .jinfo{flex:1;min-width:0;}
+.jstage .jname{font-size:12px;font-weight:600;color:#4a5068;line-height:1.35;transition:color .2s;}
+.jstage.active .jname{color:#e0e2f0;}
+.jstage .jactor{font-size:10.5px;margin-top:2px;color:#383d52;transition:color .2s;}
+.jstage.active .jactor{color:#8b90b8;}
+.jactor-agent{color:#7c6bdc;}
+.jstage.active .jactor-agent{color:#a89cf7;}
+.jactor-human{color:#2e845a;}
+.jstage.active .jactor-human{color:#4db87a;}
+.jactor-cust{color:#1f7ca0;}
+.jstage.active .jactor-cust{color:#4ab3d8;}
+.jhandoff-line{width:1px;height:10px;background:#252839;margin-left:28px;}
+#proto-canvas{flex:1;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .frame-desktop{width:100%;height:100%;max-width:1180px;max-height:760px;background:var(--canvas);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-float);}
 
 /* top browser-ish bar */
@@ -253,7 +274,12 @@ h1.page{font-size:27px;font-weight:700;letter-spacing:-.7px;margin:2px 0 3px;}
 </style>
 </head>
 <body>
-<div id="stage"></div>
+<div id="stage">
+  <div id="jmap">
+    <div id="jmap-title">Customer journey</div>
+  </div>
+  <div id="proto-canvas"></div>
+</div>
 <div id="progress"><i></i></div>
 <div id="presenter">
   <div class="persona" id="p-persona"></div>
@@ -353,12 +379,9 @@ function cctvTrace(){
     ${node('✦ Diagnostic Agent · troubleshoot','02:19',
       'Eliminated causes — PoE draw, network, NVR disk health, storage queue, and other cameras on the same NVR. Only C-07 affected: <b>recording stream got stuck during a scheduled retention-policy rotation</b>. Confidence 93%.','',
       '<b>Handoff → Resolution Agent:</b> 93%-confidence root cause.')}
-    ${node('✦ Resolution Agent · remote fix','02:24',
-      'Ran the approved <b>Recording Stream Recovery</b> runbook — cleared the stale stream lock, restarted the recording binding for C-07, forced a new segment, reattached the retention policy. Touched only C-07, never the NVR or other compliance cameras.','',
-      '<b>Handoff → Resolution Agent:</b> completed runbook, verify recovery.')}
-    ${node('✦ Resolution Agent · verify','02:40',
-      'Did not self-close. Watched new footage write at 02:25, 02:30, 02:35, 02:40 — timestamp stays under 5 min old. Recording continuity restored.','',
-      '<b>Handoff → Communications Agent:</b> verified recovery + footage-gap evidence.')}
+    ${node('✦ Resolution Agent · fix &amp; verify','02:24',
+      'Ran the approved <b>Recording Stream Recovery</b> runbook — cleared the stale stream lock, restarted the recording binding for C-07, forced a new segment, reattached the retention policy. Did not self-close: confirmed four consecutive clean footage writes at 02:25, 02:30, 02:35, 02:40 — recording continuity restored.','',
+      '<b>Handoff → Communications Agent:</b> recovery verified + footage-gap evidence.')}
     ${node('✦ Communications Agent · draft','02:41',
       'Drafted the customer notification — timing, root cause, resolution, time to resolution, the <b>02:02–02:25 footage gap (23 min)</b>, and redundancy coverage from C-08. Footage-gap disclosure is compliance-sensitive, so it <b>queues for CSA approval</b> rather than sending.','',
       '<b>Handoff → Sarah Rose (CSA):</b> drafted notification, awaiting approval at 08:05.')}
@@ -444,7 +467,7 @@ function evidenceCard(){
 function summaryTab(){
   return `<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px">
     <div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="eyebrow" style="margin:0">Agent trace</span><span style="font-size:10.5px;color:var(--slate400)">which agents ran, what they found, the handoffs</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="eyebrow" style="margin:0">Activity trace</span><span style="font-size:10.5px;color:var(--slate400)">which agents ran, what they found, the handoffs</span></div>
       ${cctvTrace()}
     </div>
     <div>
@@ -722,10 +745,56 @@ const EXPLORE={
   'sarah:agents':{p:'sarah',t:'Agents',b:'Your digital workforce and what each is doing right now.',render:()=>agentsScreen()},
 };
 
+const JSTAGES = [
+  {n:1, name:'Monitor & detect',               actor:'Diagnostic Agent → Intake Agent', type:'agent'},
+  {n:2, name:'Triage & scope',                 actor:'Intake Agent',                   type:'agent'},
+  {n:3, name:'Troubleshoot',                   actor:'Diagnostic Agent',               type:'agent'},
+  {n:4, name:'Fix & verify recovery',          actor:'Resolution Agent',               type:'agent'},
+  {n:5, name:'Draft security communication',   actor:'Communications Agent',           type:'agent'},
+  {n:6, name:'Morning review, approve & send', actor:'Sarah Rose, CSA',               type:'human'},
+  {n:7, name:'Customer receives disclosure',   actor:'Tom Avery, Atlas Logistics',    type:'cust'},
+  {n:8, name:'Post-fix prevention',            actor:'Diagnostic Agent',               type:'agent'},
+];
+// STORY index → active stage number(s) — single number, array, or null
+const SLIDE_STAGE = [1, 1, [2,3,4,5], 5, 6, 7, 8, null, null];
+
+function buildJourney(){
+  const jmap = document.getElementById('jmap');
+  const title = document.getElementById('jmap-title');
+  jmap.innerHTML = '';
+  jmap.appendChild(title);
+  JSTAGES.forEach((st, idx) => {
+    const div = document.createElement('div');
+    div.className = 'jstage';
+    div.id = 'jstage-' + st.n;
+    div.innerHTML = `<div class="jnum">${st.n}</div><div class="jinfo"><div class="jname">${st.name}</div><div class="jactor jactor-${st.type}">${st.actor}</div></div>`;
+    jmap.appendChild(div);
+    if(idx < JSTAGES.length - 1){
+      const conn = document.createElement('div');
+      conn.className = 'jhandoff-line';
+      jmap.appendChild(conn);
+    }
+  });
+}
+
+function updateJourney(activeStage){
+  const active = Array.isArray(activeStage) ? activeStage : (activeStage ? [activeStage] : []);
+  JSTAGES.forEach(st => {
+    const el = document.getElementById('jstage-' + st.n);
+    if(!el) return;
+    el.classList.toggle('active', active.includes(st.n));
+  });
+  if(active.length){
+    const el = document.getElementById('jstage-' + active[0]);
+    if(el) el.scrollIntoView({block:'nearest', behavior:'smooth'});
+  }
+}
+
 let i=0, commsSent=false, ticketTab=null, viewOverride=null;
 function paint(){
   const s=viewOverride||STORY[i];
-  document.getElementById('stage').innerHTML=s.render();
+  document.getElementById('proto-canvas').innerHTML=s.render();
+  updateJourney(SLIDE_STAGE[i]);
   const p=A[s.p];
   document.getElementById('p-persona').innerHTML=`${av(p,30)}<div><div class="nm">${p.n}</div><div class="rl">${p.r}</div></div>`;
   document.getElementById('p-title').textContent=s.t;
@@ -758,6 +827,7 @@ function navTo(key){
 function go(d){ i=(i+d+STORY.length)%STORY.length; commsSent=(i>=5); ticketTab=null; viewOverride=null; paint(); }
 document.getElementById('p-next').addEventListener('click',()=>{ i===STORY.length-1?(i=0,paint()):go(1); });
 document.getElementById('p-back').addEventListener('click',()=>go(-1));
+buildJourney();
 document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight')go(1); if(e.key==='ArrowLeft')go(-1); });
 paint();
 </script>

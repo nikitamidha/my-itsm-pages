@@ -209,12 +209,23 @@
     <div class="handoff"><span class="arrow">↓</span> hands off <b>a verified fix</b> to communicate</div>
 
     <!-- 9 -->
-    <div class="stage done">
+    <div class="stage agent">
       <div class="shead">
-        <div class="sleft"><span class="snum">9</span><span class="sname">Verify &amp; restore</span></div>
-        <span class="actor a-done">Communications Agent → Elena</span>
+        <div class="sleft"><span class="snum">9</span><span class="sname">Draft resolution communication</span></div>
+        <span class="actor a-agent">Communications Agent</span>
       </div>
-      <div class="sbody"><span class="ran">Communications Agent</span> confirms restoration to Elena — <span class="ran">check‑in, X‑rays, payments and phones all stable, inside the 2‑hour SLA</span> — and escalates the provider issue with evidence. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+      <div class="sbody"><span class="ran">Communications Agent</span> drafts the resolution update for Elena — what happened, what was fixed, SLA status, and what's still being monitored. Because it is an outbound client communication on a P1 incident, it <span class="ran">queues for IT Ops approval</span> rather than sending. <span class="badgewrap"><span class="m-chip m-auto">Autonomous</span></span></div>
+    </div>
+    <div class="handoff"><span class="arrow">↓</span> hands off <b>a drafted client notification</b> to IT Ops for approval</div>
+
+    <!-- 10 -->
+    <div class="stage human">
+      <div class="shead">
+        <div class="sleft"><span class="snum">10</span><span class="sname">Approve &amp; send communication</span></div>
+        <span class="actor a-human">Marcus Chen, IT Ops</span>
+      </div>
+      <div class="sbody">Marcus reviews the drafted notification — already grounded in the verified incident state — and <span class="ran">approves it for delivery to Elena</span>. The communication sends, the case closes with a full evidence trail, and the provider escalation is logged with route evidence. <span class="badgewrap"><span class="m-chip m-approval">Approval</span></span></div>
+      <div class="marker onsite"><span class="ic">✓</span><span><b>Why a human here.</b> All outbound B2B client communications are Approval mode. Marcus already owns the technical context for this incident and the production change that resolved it — keeping approval in IT Ops completes the governance loop on a single incident without a handoff back to the CSA.</span></div>
     </div>
   </section>
 
@@ -236,10 +247,10 @@
         <div class="hrow"><b>Why a human</b>Needs physical access and on‑the‑ground judgment the agents can't provide — including the demarc test that the backend can't run.</div>
       </div>
       <div class="hcard approval">
-        <div class="htop"><div class="hname">Marcus Chen</div><div class="hrole">IT Ops · Stage 7, Approve</div></div>
+        <div class="htop"><div class="hname">Marcus Chen</div><div class="hrole">IT Ops · Stage 7 &amp; Stage 10</div></div>
         <div class="mtag"><span class="m-chip m-approval">Approval</span></div>
-        <div class="hrow"><b>Action</b>Reviews the Diagnostic Agent's evidence and approves the permanent route change before the Resolution Agent may execute it.</div>
-        <div class="hrow"><b>Why a human</b>The change is hard to reverse and affects clinical &amp; payment traffic across clinics — it needs a governed sign‑off.</div>
+        <div class="hrow"><b>Action</b>Reviews and approves the permanent route change at Stage 7 before the Resolution Agent executes it. Reviews and approves the Communications Agent's outbound notification to Elena at Stage 10 before it sends.</div>
+        <div class="hrow"><b>Why a human</b>Owns both the technical governance gate (hard-to-reverse production change) and the communication gate (outbound client comms on a P1). Keeping both approvals in IT Ops completes the governance loop without a handoff back to the CSA.</div>
       </div>
     </div>
   </section>

@@ -35,7 +35,31 @@ body{
 button{font-family:inherit;cursor:pointer;}
 
 /* ===== Stage ===== */
-#stage{position:fixed;inset:0;bottom:84px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0f1014;}
+#stage{position:fixed;inset:0;bottom:84px;display:flex;flex-direction:row;overflow:hidden;background:#0f1014;}
+#jmap{width:292px;flex-shrink:0;height:100%;overflow-y:auto;background:#13151b;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;padding:20px 0 24px;}
+#jmap::-webkit-scrollbar{width:5px;}
+#jmap::-webkit-scrollbar-thumb{background:#2a2d38;border-radius:4px;}
+#jmap-title{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a5068;padding:0 18px 14px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:10px;}
+.jstage{display:flex;align-items:flex-start;gap:10px;padding:7px 18px 7px 14px;cursor:default;transition:background .15s;}
+.jstage.active{background:rgba(99,102,241,.13);}
+.jstage .jnum{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;background:#1e2130;color:#4a5068;border:1.5px solid #252839;transition:all .2s;}
+.jstage.active .jnum{background:#6366f1;color:#fff;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.22);}
+.jstage .jinfo{flex:1;min-width:0;}
+.jstage .jname{font-size:12px;font-weight:600;color:#4a5068;line-height:1.35;transition:color .2s;}
+.jstage.active .jname{color:#e0e2f0;}
+.jstage .jactor{font-size:10.5px;margin-top:2px;color:#383d52;transition:color .2s;}
+.jstage.active .jactor{color:#8b90b8;}
+.jactor-agent{color:#7c6bdc;}
+.jstage.active .jactor-agent{color:#a89cf7;}
+.jactor-human{color:#2e845a;}
+.jstage.active .jactor-human{color:#4db87a;}
+.jactor-cust{color:#1f7ca0;}
+.jstage.active .jactor-cust{color:#4ab3d8;}
+.jhandoff{display:flex;align-items:center;gap:6px;padding:3px 18px 3px 28px;}
+.jhandoff-line{width:1px;height:14px;background:#252839;margin-left:10px;}
+.jhandoff span{font-size:9.5px;color:#2e3247;display:block;padding:0 0 0 32px;}
+.jpast .jname,.jpast .jnum{opacity:.45;}
+#proto-canvas{flex:1;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .frame-desktop{width:100%;height:100%;max-width:1180px;max-height:760px;background:var(--canvas);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-float);}
 .frame-mobile{width:392px;height:740px;max-height:100%;background:var(--canvas);border-radius:30px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-float);border:6px solid #1b1d23;position:relative;}
 
@@ -233,7 +257,12 @@ h1.page{font-size:27px;font-weight:700;letter-spacing:-.7px;margin:2px 0 3px;}
 </style>
 </head>
 <body>
-<div id="stage"></div>
+<div id="stage">
+  <div id="jmap">
+    <div id="jmap-title">Customer journey</div>
+  </div>
+  <div id="proto-canvas"></div>
+</div>
 <div id="progress"><i></i></div>
 <div id="presenter">
   <div class="persona" id="p-persona"></div>
@@ -248,10 +277,10 @@ h1.page{font-size:27px;font-weight:700;letter-spacing:-.7px;margin:2px 0 3px;}
 <script>
 /* ============ shared component helpers ============ */
 const A = {
-  elena:{n:'Elena Park',r:'Office Manager · Northstar Dental',av:'EP',c:'#0f7b6c'},
-  sarah:{n:'Sarah Rose',r:'CSA · Day shift',av:'SR',c:'#5b57e6'},
-  ray:{n:'Ray Oak',r:'Field Service · Plano area',av:'RO',c:'#b06f2e'},
-  marcus:{n:'Marcus Chen',r:'IT Operations',av:'MC',c:'#2b2e36'},
+  elena:{n:"Elena Park",r:"Office Manager · Northstar Dental",av:"EP",c:"#0f7b6c"},
+  sarah:{n:"Sarah Rose",r:"CSA · Day shift",av:"SR",c:"#5b57e6"},
+  ray:{n:"Ray Oak",r:"Field Service · Plano area",av:"RO",c:"#b06f2e"},
+  marcus:{n:"Marcus Chen",r:"IT Operations",av:"MC",c:"#2b2e36"},
 };
 const av = (p,size=30)=>`<div class="avatar" style="background:${p.c};width:${size}px;height:${size}px;font-size:${size*0.37}px">${p.av}</div>`;
 const pri = p=>`<span class="pri ${p.toLowerCase()}">${p}</span>`;
@@ -338,21 +367,21 @@ function elenaPortal(state){
   const svc = (name,status,sub,color)=>`<div class="svc-card" style="border-top-color:${color}"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:700">${name}</div><span class="livedot" title="continuously monitored"></span></div><div style="font-size:12px;font-weight:600;color:${color};margin-top:6px">${status}</div><div style="font-size:11px;color:var(--slate500);margin-top:3px">${sub}</div></div>`;
   const netCard = restored
     ? svc('Managed Network','Healthy','Restored · monitoring','#18935f')
-    : `<div class="svc-card" style="border-top-color:#e5484d"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:700">Managed Network</div><span class="livedot"></span></div><div style="font-size:12px;font-weight:600;color:#e5484d;margin-top:6px">Anomaly detected</div><div style="font-size:11px;color:var(--slate500);margin-top:3px">Clinic apps timing out</div></div>`;
+    : `<div class="svc-card" style="border-top-color:#18935f"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:700">Managed Network</div><span class="livedot" style="background:#18935f"></span></div><div style="font-size:12px;font-weight:600;color:#18935f;margin-top:6px">Healthy</div><div style="font-size:11px;color:var(--slate500);margin-top:3px">One app timing out</div></div>`;
   const chatThread = restored ? `
     <div class="bubble-them">Good morning Elena — Plano West diagnostics are green. How can TechGuard help today?</div>
-    <div class="bubble-me">I'm facing trouble today — the internet stays connected, but the patient check-in app and the X-ray files are timing out. Our patients are waiting.</div>
-    <div class="bubble-them"><b>✦ Triage agent</b> — Thanks Elena. That's unusual for Plano West. A couple of quick questions: is it <i>all</i> devices or some, and which apps exactly? (08:17)</div>
+    <div class="bubble-me">I\'m facing trouble today — the internet stays connected, but the patient check-in app and the X-ray files are timing out. Our patients are waiting.</div>
+    <div class="bubble-them"><b>✦ Triage agent</b> — Thanks Elena. That\'s unusual for Plano West. A couple of quick questions: is it <i>all</i> devices or some, and which apps exactly? (08:17)</div>
     <div class="bubble-me">All the front-desk machines. Check-in and X-rays mainly; card payments are slow too. Browsing the web is fine.</div>
     <div class="bubble-them"><b>✦ Triage agent</b> — Classified: <b>Network Connectivity · P1 · single clinic · critical healthcare apps.</b> Routing to a specialist now. (08:18)</div>
     <div style="text-align:center;font-size:11px;color:var(--slate400);margin:4px 0">Case NET-2208 · P1 · resolved 09:25</div>
-    <div class="bubble-them" style="border-color:#cce5d8;background:#f0f8f4"><b>TechGuard has restored critical clinic operations at Plano West.</b><br><br>Your equipment is healthy, but traffic to key dental apps was taking an unhealthy provider path. We moved critical workflows to a healthy backup path, then IT Ops approved a permanent route correction.<br><br>Check-in, X-rays, payments, and web hosting are now stable. Guest Wi-Fi returns once monitoring confirms the primary path is healthy. We've also escalated the provider issue with evidence.<br><br><b>SLA status:</b> restored inside the 2-hour P1 window. (09:25)</div>`
+    <div class="bubble-them" style="border-color:#cce5d8;background:#f0f8f4"><b>TechGuard has restored critical clinic operations at Plano West.</b><br><br>Your equipment is healthy, but traffic to key dental apps was taking an unhealthy provider path. We moved critical workflows to a healthy backup path, then IT Ops approved a permanent route correction.<br><br>Check-in, X-rays, payments, and web hosting are now stable. Guest Wi-Fi returns once monitoring confirms the primary path is healthy. We\'ve also escalated the provider issue with evidence.<br><br><b>SLA status:</b> restored inside the 2-hour P1 window. (09:25)</div>`
     : `
     <div class="bubble-them">Good morning Elena — Plano West diagnostics are green. How can TechGuard help today?</div>
-    <div class="bubble-me">I'm facing trouble today — the internet stays connected, but the patient check-in app and the X-ray files are timing out. Our patients are waiting.</div>
-    <div class="bubble-them"><b>✦ Triage agent</b> — Thanks Elena, that's unusual for Plano West. A couple of quick questions so I scope this right: is it <i>all</i> devices or some, and which apps exactly? (08:17)</div>
+    <div class="bubble-me">I\'m facing trouble today — the internet stays connected, but the patient check-in app and the X-ray files are timing out. Our patients are waiting.</div>
+    <div class="bubble-them"><b>✦ Triage agent</b> — Thanks Elena, that\'s unusual for Plano West. A couple of quick questions so I scope this right: is it <i>all</i> devices or some, and which apps exactly? (08:17)</div>
     <div class="bubble-me">All the front-desk machines. Check-in and X-rays mainly; card payments are slow too. Browsing the web is fine.</div>
-    <div class="bubble-them"><b>✦ Triage agent</b> — Got it — general internet is fine but your clinical apps are timing out. I'm classifying this as <b>Network Connectivity · P1 · single clinic · critical healthcare apps</b> and prioritising it now. A network specialist is being matched. (08:18)</div>
+    <div class="bubble-them"><b>✦ Triage agent</b> — Got it — general internet is fine but your clinical apps are timing out. I\'m classifying this as <b>Network Connectivity · P1 · single clinic · critical healthcare apps</b> and prioritising it now. A network specialist is being matched. (08:18)</div>
     <div style="text-align:center;font-size:11px;color:var(--slate400);margin:4px 0">Case NET-2208 created · P1 · specialist being matched</div>`;
   // always-on continuous diagnostics + reporting feed
   const diagFeed = restored
@@ -360,7 +389,7 @@ function elenaPortal(state){
     : [['just now','Scanning clinical app path — elevated timeouts','var(--crit)'],['08:16','Router NS-PW reachable · uplink stable','var(--heal)'],['08:15','CCTV 18/18 online · web hosting nominal','var(--heal)']];
   const rightPanel = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="livedot"></span><div class="eyebrow" style="margin:0">Continuous diagnostics · running 24/7</div></div>
-    <div style="font-size:12px;color:var(--slate600);line-height:1.5;margin-bottom:13px">TechGuard agents probe every Plano West service on a rolling cycle — you don't have to report a problem for us to see it.</div>
+    <div style="font-size:12px;color:var(--slate600);line-height:1.5;margin-bottom:13px">TechGuard agents probe every Plano West service on a rolling cycle — you don\'t have to report a problem for us to see it.</div>
     <div style="display:flex;justify-content:space-between;background:var(--canvas);border:1px solid var(--hairline);border-radius:10px;padding:9px 12px;margin-bottom:14px">
       <div><div style="font-size:18px;font-weight:700;color:var(--heal);letter-spacing:-.4px">312</div><div style="font-size:10px;color:var(--slate400)">checks / hr</div></div>
       <div><div style="font-size:18px;font-weight:700;letter-spacing:-.4px">4</div><div style="font-size:10px;color:var(--slate400)">services watched</div></div>
@@ -415,7 +444,7 @@ function notifCenter(items, open){
 function sarahCockpit(){
   const cp = copilot(A.sarah,[
     {q:'Anything new I should know about this morning?'},
-    {a:'One new item just landed in Watch: Northstar Dental (NET-2208 — SLA 1h 43m). The agents are handling it autonomously — field service is already dispatched. No action needed unless it’s promoted to you.',src:'NET-2208'},
+    {a:'One new item just landed in Watch: Northstar Dental (NET-2208 — SLA 1h 43m). The agents are handling it autonomously — field service is already dispatched. No action needed unless it\'s promoted to you.',src:'NET-2208'},
   ]);
   const notif = notifCenter([
     {m:'<b>New in Watch</b> — NET-2208 Northstar Dental classified P1, field dispatched',t:'2 min ago',c:'var(--watch-dot)',new:true,nav:'go:sarah-watch'},
@@ -481,12 +510,12 @@ function agentTrace(){
     <div class="tfind">${find}</div>${extra||''}${hand?`<div class="thand"><span>↳</span><span>${hand}</span></div>`:''}</div>`;
   return `<div class="trace">
     ${node('done','✦ Intake Agent','08:17',
-      'Captured Elena’s report from the self-serve portal, asked clarifying questions (all devices? which apps?), and confirmed general internet is fine while clinical apps time out. Classified <b>P1 · Network Connectivity · single clinic · critical healthcare apps</b>.',
+      'Captured Elena\'s report from the self-serve portal, asked clarifying questions (all devices? which apps?), and confirmed general internet is fine while clinical apps time out. Classified <b>P1 · Network Connectivity · single clinic · critical healthcare apps</b>.',
       '',
       '<b>Handoff → Diagnostic Agent:</b> network service line confirmed; needs root-cause.')}
     ${node('done','✦ Diagnostic Agent','08:19',
       'Ran remote checks — connection up, Router NS-PW reachable. Clinic-app traffic dropping <b>7.2%</b> on a degraded provider route; general browsing clean. Confidence 71%.',
-      '<div class="insight"><b>Insight that triggered dispatch:</b> remote checks can’t separate clinic-side vs provider-side fault — a physical <b>demarc test</b> is required. Remote resolution exhausted → on-site needed.</div>',
+      '<div class="insight"><b>Insight that triggered dispatch:</b> remote checks can\'t separate clinic-side vs provider-side fault — a physical <b>demarc test</b> is required. Remote resolution exhausted → on-site needed.</div>',
       '<b>Handoff → Field Service Orchestrator:</b> on-site demarc confirmation required.')}
     ${node('done','✦ Field Service Orchestrator','08:25',
       'Matched the field agent by area, skill, availability, SLA window, and parts on van — selected <b>Ray Oak · Plano Area FSA</b>, 30-min ETA. Packaged the field brief (circuit, router, demarc, access, backup link) and raised work order WO-2208.',
@@ -515,7 +544,7 @@ function sarahTicketPane(){
         <div style="display:flex;justify-content:space-between;gap:10px;padding-bottom:7px;border-bottom:1px solid #e3eef8"><span style="font-size:11px;color:var(--slate500)">Status</span><span style="font-size:12px;font-weight:700;color:var(--agent-fg)">Field Service Agent Ray Oak assigned</span></div>
         <div style="display:flex;justify-content:space-between;gap:10px;padding-top:7px"><span style="font-size:11px;color:var(--slate500)">Next action</span><span style="font-size:12px;font-weight:700;color:var(--ink)">Waiting on Ray to accept the job</span></div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="eyebrow" style="margin:0">Agent trace</span><span style="font-size:10.5px;color:var(--slate400)">who was triggered · findings · handoffs</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="eyebrow" style="margin:0">Activity trace</span><span style="font-size:10.5px;color:var(--slate400)">who was triggered · findings · handoffs</span></div>
       ${agentTrace()}
       <div style="border-top:1px solid var(--hairline);padding-top:12px;margin-top:6px">
         ${[['Account','Northstar Dental Group'],['Service line','Network · Connectivity'],['Requester','Elena Park · Office Manager'],['Assignee','Ray Oak · Area FSA'],['Asset / CI','Router NS-PW · Plano West']].map(([k,v])=>`<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
@@ -527,7 +556,7 @@ function sarahTicketPane(){
 
 /* ---- Sarah NET-2208 — FULL SCREEN (center) ---- */
 function sarahTicketFull(){
-  const cp = copilot(A.sarah,[{q:'Summarise where this stands.'},{a:'Intake classified it, Diagnostic found a degraded provider route and flagged that a physical demarc test is needed, so the Field Service Orchestrator dispatched Ray Oak. He’s on site running runbooks now. No human action required yet.',src:'NET-2208'}]);
+  const cp = copilot(A.sarah,[{q:'Summarise where this stands.'},{a:'Intake classified it, Diagnostic found a degraded provider route and flagged that a physical demarc test is needed, so the Field Service Orchestrator dispatched Ray Oak. He\'s on site running runbooks now. No human action required yet.',src:'NET-2208'}]);
   const center = `<div class="center-scroll">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><button class="icbtn" data-action="collapse" title="Back to queue">‹</button><span style="font-size:11px;color:var(--slate400);font-weight:600">Watch · NET-2208</span><button class="icbtn" data-action="collapse" style="margin-left:auto" title="Exit full screen">⤡</button></div>
     <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px">${pri('P1')}${mode('watch')}<span class="attn agent">Ray Oak assigned</span><span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--warn)">⏱ SLA 1h 43m</span></div>
@@ -536,7 +565,7 @@ function sarahTicketFull(){
     <div class="card" style="padding:11px 15px;margin-bottom:18px;background:#f3f8fd;border-color:#d6e6f5;display:flex;gap:30px"><div><div style="font-size:11px;color:var(--slate500)">Status</div><div style="font-size:13px;font-weight:700;color:var(--agent-fg)">Field Service Agent Ray Oak assigned</div></div><div><div style="font-size:11px;color:var(--slate500)">Next action</div><div style="font-size:13px;font-weight:700;color:var(--ink)">Waiting on Ray to accept the job</div></div></div>
     <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px">
       <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="eyebrow" style="margin:0">Agent trace</span><span style="font-size:10.5px;color:var(--slate400)">which agents ran, what they found, where they handed off</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="eyebrow" style="margin:0">Activity trace</span><span style="font-size:10.5px;color:var(--slate400)">which agents ran, what they found, where they handed off</span></div>
         ${agentTrace()}
       </div>
       <div>
@@ -580,7 +609,7 @@ function marcusDashboard(){
       ${[['INC-87155','P1','Agent proposes BGP reroute affecting 6 branch sites','Meridian Bank · Network','SLA 9m'],['INC-48142','P2','Agent requests prod DB failover to replica','Apex Media Group · Web Hosting','SLA 33m']].map(([id,p,t,a,sla])=>`<div class="qrow clk" data-nav="marcus:approvals" style="border-left-color:var(--agent)"><div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">${pri(p)}${mode('approvals')}<span style="margin-left:auto;font-size:11px;color:var(--slate400)">${id} · ${sla}</span></div><div class="ttl" style="margin:7px 0 5px">${t}</div><div class="qmeta"><span class="b6" style="color:#3d424d">${a}</span></div></div>`).join('')}
     </div>
   </div>`;
-  const cp = copilot(A.marcus,[{q:'Anything new needing my approval?'},{a:'Yes — a new request just arrived: NET-2208, a permanent route correction from Ray Oak’s field evidence at Plano West. Confidence 90%, SLA 30m. Tap it to review the scope and rollback.',src:'NET-2208'}]);
+  const cp = copilot(A.marcus,[{q:'Anything new needing my approval?'},{a:'Yes — a new request just arrived: NET-2208, a permanent route correction from Ray Oak\'s field evidence at Plano West. Confidence 90%, SLA 30m. Tap it to review the scope and rollback.',src:'NET-2208'}]);
   return deskFrame({url:'app.itforce.techguard.io/itops',label:'ITForce · IT Ops · Dashboard',rail:railMarcus(''),center,copilot:cp});
 }
 
@@ -606,7 +635,7 @@ function marcusCockpit(sel, pane){
         <div style="height:5px;border-radius:4px;background:var(--hairline);margin-top:8px;overflow:hidden"><i style="display:block;height:100%;width:${parseInt(r.conf)}%;background:var(--agent)"></i></div>
       </div>`).join('')}
     </div></div>`;
-  const cp = copilot(A.marcus,[{q:"What's the blast radius on the NET-2208 route change?"},{a:'Plano West clinical + payment traffic. The policy is shared with other Northstar clinics, so the agent scoped it to Plano West only and staged a 30-min monitor with auto-rollback.',src:'NET-2208 · Network Diagnostic Agent'}]);
+  const cp = copilot(A.marcus,[{q:"What\'s the blast radius on the NET-2208 route change?"},{a:'Plano West clinical + payment traffic. The policy is shared with other Northstar clinics, so the agent scoped it to Plano West only and staged a 30-min monitor with auto-rollback.',src:'NET-2208 · Network Diagnostic Agent'}]);
   return deskFrame({url:'app.itforce.techguard.io/itops/approvals',label:'ITForce · IT Ops · Approvals',rail:railMarcus('approvals'),center,copilot:pane||cp});
 }
 
@@ -623,7 +652,7 @@ function marcusApprovalBody(done){
   return done ? `
     <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px"><span class="mode verify"><span class="d"></span>Executed under approval</span><span class="eyebrow" style="margin:0">Permanent Route Correction</span></div>
     ${['Route policy updated — clinical/payment traffic pinned to stable route','Dental apps tested: check-in, X-rays, payments all pass','Monitoring packet loss &amp; latency — 30-min window, rollback armed','Provider escalation opened with route evidence'].map(t=>`<div class="rb" style="margin-bottom:8px"><div class="ck done">✓</div><div style="font-size:12.5px;color:var(--ink2)">${t}</div></div>`).join('')}
-    <div class="card" style="padding:12px 14px;margin-top:6px;background:var(--heal-bg);border-color:#cce5d8"><div style="font-size:12px;font-weight:700;color:var(--heal)">✓ Network healthy — Plano West restored</div><div style="font-size:11.5px;color:var(--ink2);line-height:1.45;margin-top:3px">Ray Oak can now verify and close on site. The Comms agent has drafted Elena’s update for Sarah to approve.</div></div>` : `
+    <div class="card" style="padding:12px 14px;margin-top:6px;background:var(--heal-bg);border-color:#cce5d8"><div style="font-size:12px;font-weight:700;color:var(--heal)">✓ Network healthy — Plano West restored</div><div style="font-size:11.5px;color:var(--ink2);line-height:1.45;margin-top:3px">Ray Oak can now verify and close on site. The Comms agent has drafted Elena\'s update for Sarah to approve.</div></div>` : `
     <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">${mode('approvals')}<span class="eyebrow" style="margin:0">Suggested by Network Diagnostic Agent</span></div>
     <div style="font-size:11px;font-weight:700;color:var(--slate400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">What happened</div>
     <div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:12px">Field evidence from Plano West (Ray Oak) confirms clinic-app traffic is taking a degraded provider route. The agent suggests a permanent route-policy correction so traffic uses the stable path, replacing the temporary failover. Because it touches clinical/payment systems and the shared Northstar policy, execution is withheld for your approval.</div>
@@ -648,7 +677,7 @@ function marcusApprovalPane(state){
 /* full-screen (center) — state 'review' | 'done' */
 function marcusApprovalFull(state){
   const done = state==='done';
-  const cp = copilot(A.marcus,[{q:done?'Confirm it’s stable.':'Why does this need me?'},{a:done?'Stable. App loss 0.4%, latency 18ms, payments and X-rays pass. Monitoring 30 min with rollback armed. Plano West only.':'It changes production routing for clinical and payment traffic on a shared Northstar policy — high blast radius. Agents can suggest it but won’t execute without your approval.',src:'NET-2208'}]);
+  const cp = copilot(A.marcus,[{q:done?'Confirm it\'s stable.':'Why does this need me?'},{a:done?'Stable. App loss 0.4%, latency 18ms, payments and X-rays pass. Monitoring 30 min with rollback armed. Plano West only.':'It changes production routing for clinical and payment traffic on a shared Northstar policy — high blast radius. Agents can suggest it but won\'t execute without your approval.',src:'NET-2208'}]);
   const center = `<div class="center-scroll">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><button class="icbtn" data-action="collapse" title="Back to queue">‹</button><span style="font-size:11px;color:var(--slate400);font-weight:600">Approvals · NET-2208</span><button class="icbtn" data-action="collapse" style="margin-left:auto" title="Exit full screen">⤡</button></div>
     <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px">${pri('P1')}${done?`<span class="mode verify"><span class="d"></span>Executed</span>`:`<span class="attn appr">Needs approval</span>`}<span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--warn)">⏱ SLA 30m</span></div>
@@ -716,16 +745,17 @@ function rayDay(){
   return mobFrame(inner);
 }
 
-function rayJob(tab){
+function rayJob(tab, forcedDiagState){
+  const ds = forcedDiagState !== undefined ? forcedDiagState : diagState;
   const segs = [['Brief','brief'],['Parts','parts'],['On site','onsite'],['Close','close']];
   const seg = `<div class="seg">${segs.map(([l,k])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}</button>`).join('')}</div>`;
   let body='';
   if(tab==='brief'){
     body = `
       <div class="card" style="padding:14px 15px;margin-bottom:16px;border-left:3px solid var(--agent);background:var(--agent-bg)">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--agent-fg);margin-bottom:6px">Why you’re here</div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--agent-fg);margin-bottom:6px">Why you\'re here</div>
         <div style="font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.4;margin-bottom:5px">Run a physical demarc test</div>
-        <div style="font-size:12px;color:var(--ink2);line-height:1.5">Agents narrowed it to a degraded provider route but <b>can’t confirm provider-side vs clinic-side remotely</b>. Your demarc test settles it — that’s the one thing only you can do on site.</div>
+        <div style="font-size:12px;color:var(--ink2);line-height:1.5">Agents narrowed it to a degraded provider route but <b>can\'t confirm provider-side vs clinic-side remotely</b>. Your demarc test settles it — that\'s the one thing only you can do on site.</div>
       </div>
       <div class="eyebrow" style="margin-bottom:9px">Groundwork already done for you</div>
       <div class="card" style="padding:12px 14px;margin-bottom:16px">
@@ -744,14 +774,14 @@ function rayJob(tab){
       <div class="card" style="padding:11px 13px;margin-top:8px;display:flex;gap:9px;align-items:center;background:var(--agent-bg);border-color:#cfe2f1"><span style="font-size:14px">✦</span><div style="font-size:11.5px;color:var(--agent-fg);line-height:1.4">No part swap expected — this is a routing fix. Carry the SFP only as a contingency.</div></div>`;
   } else if(tab==='onsite'){
     const runbooks=[['Area Node Check','Provider handoff degraded · nearby sites clean'],['Site Edge Health','Router, ports, cabling, power — all healthy'],['Clinic App Brownout','Browsing fine · app traffic 7.2% loss on provider route'],['Demarc Test','Fault confirmed provider-side, not clinic-side']];
-    if(diagState==='running'){
+    if(ds==='running'){
       body = diagRunning('Running on-site runbooks…', runbooks.map(r=>r[0]));
-    } else if(diagState==='done'){
+    } else if(ds==='done'){
       body = `
         <div class="eyebrow" style="margin-bottom:9px">Runbooks — complete</div>
         ${runbooks.map(([t,s])=>`<div class="rb"><div class="ck done">✓</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${t}</div><div style="font-size:11px;color:var(--slate500);margin-top:2px;line-height:1.4">${s}</div></div></div>`).join('')}
         <div class="card" style="padding:13px 14px;margin:14px 0;border-left:3px solid var(--warn);background:var(--warn-bg)">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--warn-fg);margin-bottom:6px">✦ Mitigation suggested · Network Diagnostic Agent</div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--warn-fg);margin-bottom:6px">✦ Diagnostic Agent — Proposal sent to Marcus Chen for approval</div>
           <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px">Permanent route correction</div>
           <div style="font-size:11.5px;color:var(--ink2);line-height:1.5">Move clinical &amp; payment traffic off the degraded provider route onto the stable path. This changes production routing, so it needs <b>IT Ops approval</b> before it runs.</div>
         </div>`;
@@ -766,9 +796,9 @@ function rayJob(tab){
     }
   } else { /* close */
     const checks=[['Main connection stable','Checked from the router and from monitoring'],['Clinic apps working','Check-in, X-rays, payments tested on site'],['Backup / guest Wi-Fi as planned','Guest Wi-Fi paused; critical apps on stable route'],['Changes and parts logged','Steps recorded to the case'],['Client sign-off captured','Elena Park, Office Manager — saved to the case']];
-    if(diagState==='running'){
+    if(ds==='running'){
       body = diagRunning('Running diagnostics &amp; verifying…', checks.map(c=>c[0]));
-    } else if(diagState==='done'){
+    } else if(ds==='done'){
       body = `
         <div class="card" style="padding:13px 14px;margin-bottom:16px;border-left:3px solid var(--heal);background:var(--heal-bg)">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--heal);margin-bottom:6px">✦ Network Diagnostic Agent · outcome</div>
@@ -780,7 +810,7 @@ function rayJob(tab){
       body = `
         <div class="card" style="padding:13px 14px;margin-bottom:16px;border-left:3px solid var(--agent);background:var(--agent-bg)">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--agent-fg);margin-bottom:6px">Before you close</div>
-          <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">Run diagnostics to confirm IT Ops’ route correction took, then verify the close criteria.</div>
+          <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">Run diagnostics to confirm IT Ops' route correction took, then verify the close criteria.</div>
         </div>
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px">${mode('verify')}<span class="eyebrow" style="margin:0">Will verify</span></div>
         ${checks.map(([t])=>`<div class="rb"><div class="ck todo"></div><div style="font-size:13px;font-weight:600">${t}</div></div>`).join('')}`;
@@ -788,22 +818,22 @@ function rayJob(tab){
   }
   const onsiteState = (tab==='onsite'||tab==='close');
   const actionBtn = tab==='close'
-    ? (diagState==='done'
+    ? (ds==='done'
         ? `<button class="btn btn-dark" data-action="finish" style="width:100%">Verify &amp; close</button><div style="text-align:center;font-size:10.5px;color:var(--slate400);margin-top:8px">The Comms agent writes the client update when you close.</div>`
-        : diagState==='running' ? `<button class="btn btn-ghost" style="width:100%" disabled>Running…</button>`
+        : ds==='running' ? `<button class="btn btn-ghost" style="width:100%" disabled>Running…</button>`
         : `<button class="btn btn-dark" data-action="rundiag" style="width:100%">Run diagnostics &amp; verify</button>`)
     : tab==='onsite'
-      ? (diagState==='done'
-          ? `<button class="btn btn-dark" data-action="to-itops" style="width:100%">Send to IT Ops for approval</button>`
-          : diagState==='running' ? `<button class="btn btn-ghost" style="width:100%" disabled>Running…</button>`
+      ? (ds==='done'
+          ? `<button class="btn btn-ghost" data-action="to-itops" style="width:100%">Switch to Marcus →</button>`
+          : ds==='running' ? `<button class="btn btn-ghost" style="width:100%" disabled>Running…</button>`
           : `<button class="btn btn-dark" data-action="rundiag" style="width:100%">Run diagnostics</button>`)
     : tab==='parts' ? `<button class="btn btn-dark" style="width:100%">Confirm parts loaded</button>`
     : `<button class="btn btn-dark" data-action="goto-onsite" style="width:100%">Accept dispatch</button>`;
   const whenTxt = onsiteState ? 'On site · arrived 08:48' : 'Dispatched 08:25 · ETA 30 min';
   const statusChip = onsiteState ? 'On site' : 'Dispatched · en route';
-  const agentNote = tab==='close' ? (diagState==='done'?'Verified · route correction holding — ready to close':diagState==='running'?'Verifying close criteria…':'IT Ops approved &amp; executed — run diagnostics to verify')
-    : tab==='onsite' ? (diagState==='done'?'Runbooks done · mitigation suggested · needs IT Ops approval':diagState==='running'?'Running on-site runbooks…':'On site — run diagnostics on demand')
-    : tab==='parts' ? 'Parts packaged for this job — confirm what’s in the van'
+  const agentNote = tab==='close' ? (ds==='done'?'Verified · route correction holding — ready to close':ds==='running'?'Verifying close criteria…':'IT Ops approved &amp; executed — run diagnostics to verify')
+    : tab==='onsite' ? (ds==='done'?'Runbooks done · Diagnostic Agent sent proposal to Marcus Chen for approval':ds==='running'?'Running on-site runbooks…':'On site — run diagnostics on demand')
+    : tab==='parts' ? 'Parts packaged for this job — confirm what\'s in the van'
     : 'Remote groundwork done · review the brief before you head out';
   const inner = `
     <div style="padding:13px 16px 11px;background:#fff;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:9px"><span class="icbtn" data-row="back-day" style="border:none;width:auto;font-size:18px;color:var(--slate400)">‹</span><div style="flex:1"><div style="font-size:14px;font-weight:700">Northstar Dental Group</div><div style="font-size:11px;color:var(--slate500)">📍 Plano West Clinic · NET-2208</div></div><span style="font-size:14px;color:var(--slate400)">⤴</span></div>
@@ -829,12 +859,32 @@ function sarahCommsDrawer(){
     <div class="pane-body">
       <div class="eyebrow" style="margin-bottom:9px">Draft message</div>
       <div class="card" style="padding:14px 15px;background:#fbfbfd;font-size:12.5px;color:var(--ink2);line-height:1.6;margin-bottom:16px">
-        Hi Elena,<br><br>TechGuard has restored critical clinic operations at Plano West. Our Plano Area Field Service Agent checked the area connection and visited the clinic. The equipment is healthy, but traffic to key dental apps was taking an unhealthy provider path. We moved critical workflows to a healthy backup path, then IT Ops approved a permanent route correction.<br><br>Check-in, X-rays, payments, and web hosting are now stable. Guest Wi-Fi returns once monitoring confirms the primary path is healthy. We've escalated the provider issue with evidence.<br><br><b>SLA status:</b> restored inside the 2-hour P1 window.
+        Hi Elena,<br><br>TechGuard has restored critical clinic operations at Plano West. Our Plano Area Field Service Agent checked the area connection and visited the clinic. The equipment is healthy, but traffic to key dental apps was taking an unhealthy provider path. We moved critical workflows to a healthy backup path, then IT Ops approved a permanent route correction.<br><br>Check-in, X-rays, payments, and web hosting are now stable. Guest Wi-Fi returns once monitoring confirms the primary path is healthy. We\'ve escalated the provider issue with evidence.<br><br><b>SLA status:</b> restored inside the 2-hour P1 window.
       </div>
       <div class="eyebrow" style="margin-bottom:6px">Grounded in</div>
       ${[['Account','Northstar Dental Group'],['Tone','Reassuring · operational'],['Verified facts','Apps tested · IT Ops approval · SLA met'],['Channel','Self-serve portal + email']].map(([k,v])=>`<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
     </div>
     <div class="pane-foot"><button class="btn btn-out">Edit tone</button><button class="btn btn-dark" style="flex:1">Approve &amp; send</button></div>
+  </aside>`;
+}
+
+/* ---- Marcus comms approval — right pane (all outbound B2B client comms = IT Ops Approval) ---- */
+function marcusCommsDrawer(){
+  return `<aside class="rpane">
+    <div class="pane-head">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px">${pri('P1')}${mode('approvals')}<span class="attn appr">Needs approval</span><span style="margin-left:auto;font-size:11px;color:var(--slate400)">NET-2208 · Comms</span></div>
+      <div style="font-size:15.5px;font-weight:700;letter-spacing:-.3px;line-height:1.25">Resolution update ready for Elena Park</div>
+      <div style="font-size:11.5px;color:var(--slate500);margin-top:7px">Communications Agent drafted from live incident state · all outbound B2B client messages require IT Ops approval before sending.</div>
+    </div>
+    <div class="pane-body">
+      <div class="eyebrow" style="margin-bottom:9px">Draft message</div>
+      <div class="card" style="padding:14px 15px;background:#fbfbfd;font-size:12.5px;color:var(--ink2);line-height:1.6;margin-bottom:16px">
+        Hi Elena,<br><br>TechGuard has restored critical clinic operations at Plano West. Our Plano Area Field Service Agent checked the area connection and visited the clinic. The equipment is healthy, but traffic to key dental apps was taking an unhealthy provider path. We moved critical workflows to a healthy backup path, then IT Ops approved a permanent route correction.<br><br>Check-in, X-rays, payments, and web hosting are now stable. Guest Wi-Fi returns once monitoring confirms the primary path is healthy. We\'ve escalated the provider issue with evidence.<br><br><b>SLA status:</b> restored inside the 2-hour P1 window.
+      </div>
+      <div class="eyebrow" style="margin-bottom:6px">Grounded in</div>
+      ${[['Account','Northstar Dental Group'],['Tone','Reassuring · operational'],['Verified facts','Apps tested · IT Ops approval · SLA met'],['Channel','Self-serve portal + email']].map(([k,v])=>`<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
+    </div>
+    <div class="pane-foot"><button class="btn btn-out">Edit tone</button><button class="btn btn-dark" style="flex:1">Approve &amp; send to Elena</button></div>
   </aside>`;
 }
 
@@ -855,7 +905,7 @@ function outcome(){
     </div>
     <div class="card" style="padding:18px 20px;background:#1b1d23;color:#fff;border:none">
       <div class="eyebrow" style="color:#a9a7ec;margin-bottom:8px">The point to land</div>
-      <div style="font-size:15px;font-weight:600;line-height:1.5">This isn't a ticket bouncing around. The CSA classifies, the FSA investigates and mitigates, the Network Diagnostic Agent proposes the permanent fix, and IT Ops governs the production change — one continuous flow, one language, every surface.</div>
+      <div style="font-size:15px;font-weight:600;line-height:1.5">This isn\'t a ticket bouncing around. The CSA classifies, the FSA investigates and mitigates, the Network Diagnostic Agent proposes the permanent fix, and IT Ops governs the production change — one continuous flow, one language, every surface.</div>
     </div>
   </div>`;
   return deskFrame({url:'app.itforce.techguard.io/incident/NET-2208',label:'ITForce · Incident closed',rail:railSarah(''),center:inner});
@@ -923,7 +973,6 @@ function fourUp(){
       ${mini(A.marcus,'Marcus · IT Ops','itforce/itops',[['Route correction','var(--heal)','Executed'],['Blast radius','var(--ink2)','Plano West only'],['Rollback','var(--heal)','Armed → clean']],'Governed the one production change')}
     </div>
     <div class="card" style="padding:16px 20px;background:#1b1d23;color:#fff;border:none">
-      <div class="eyebrow" style="color:#a9a7ec;margin-bottom:7px">The point to land</div>
       <div style="font-size:14.5px;font-weight:600;line-height:1.5">CSA classifies, FSA investigates and mitigates, the Network Diagnostic Agent proposes the permanent fix, and IT Ops governs the production change — one continuous, evidence-backed flow across every persona.</div>
     </div>
   </div>`;
@@ -932,19 +981,20 @@ function fourUp(){
 
 /* ============ WALKTHROUGH ENGINE ============ */
 const STORY = [
-  {p:'elena', t:'Elena reports a confusing clinic outage', b:'In TechGuard’s customer portal, Northstar Dental’s office manager describes the symptom — internet shows connected, but check-in and X-rays time out. Patients are waiting.', render:()=>elenaPortal('report')},
-  {p:'sarah', t:'It routes autonomously — Sarah only watches', b:'No CSA intake. The triage agent classifies the case as P1 network and dispatches field service on its own; it lands in Sarah’s Watch queue, not her Inputs Required queue. A notification flags the new arrival.', render:()=>sarahCockpit()},
+  {p:'elena', t:'Elena reports a confusing clinic outage', b:'In TechGuard\'s customer portal, Northstar Dental\'s office manager describes the symptom — internet shows connected, but check-in and X-rays time out. Patients are waiting.', render:()=>elenaPortal('report')},
+  {p:'sarah', t:'It routes autonomously — Sarah only watches', b:'No CSA intake. The triage agent classifies the case as P1 network and dispatches field service on its own; it lands in Sarah\'s Watch queue, not her Inputs Required queue. A notification flags the new arrival.', render:()=>sarahCockpit()},
   {p:'sarah', t:'Sarah drills into the Watch queue', b:'Three tickets are being handled autonomously. NET-2208 is the only one on an SLA clock — P1, Plano West, field already dispatched.', render:()=>sarahQueue(null,'')},
   {p:'sarah', t:'Sarah opens NET-2208 — the app reflows to three panes', b:'The detail opens as a right pane and the workspace reflows to three panes. The centerpiece is the agent trace: which agents ran, what each found, and how they handed off — including the insight that triggered field dispatch. She can open it full screen, or Take over as human agent.', render:()=> expanded ? sarahTicketFull() : sarahQueue('NET-2208', sarahTicketPane())},
-  {p:'ray', t:'Ray gets a new-task notification and taps View details', b:'On his phone, the Plano Area FSA sees a NEW task in his notification center — Northstar Dental, P1, dispatched by the Field Service Orchestrator. The card’s action is View details, not a cold "start".', render:()=>rayDay()},
-  {p:'ray', t:'Ray reviews the brief — why he’s here, front and center', b:'The brief leads with the one thing only he can do (a physical demarc test) and the groundwork agents already did. Likely-cause and site details tuck away to keep it light. Tabs (Brief, Parts, On site, Close) all work. Ray taps Accept dispatch.', render:()=>rayJob(rayTab||'brief')},
-  {p:'ray', t:'On site: runbooks done, mitigation suggested → ask IT Ops', b:'Ray runs the guided runbooks; the demarc test confirms a provider-side fault. The Network Diagnostic Agent suggests a permanent route correction — but it changes production routing, so the CTA sends it to IT Ops for approval.', render:()=>rayJob(rayTab||'onsite')},
-  {p:'marcus', t:'Marcus lands on his dashboard — a new approval just arrived', b:'IT Ops opens to the dashboard. A notification and a highlighted New Approval card flag the NET-2208 route correction that Ray’s evidence just produced. He taps it to drill in.', render:()=>marcusDashboard()},
-  {p:'marcus', t:'Marcus drills into the approval — three-pane, with full screen', b:'Going from a card to its detail reflows to three panes (and can open full screen). He sees telemetry, the agent’s reasoning, blast radius scoped to Plano West only, and an armed rollback. The CTA is Approve mitigation.', render:()=> expanded ? marcusApprovalFull('review') : marcusCockpit('NET-2208', marcusApprovalPane('review'))},
+  {p:'ray', t:'Ray gets a new-task notification and taps View details', b:'On his phone, the Plano Area FSA sees a NEW task in his notification center — Northstar Dental, P1, dispatched by the Field Service Orchestrator. The card\'s action is View details, not a cold "start".', render:()=>rayDay()},
+  {p:'ray', t:'Ray reviews the brief — why he\'s here, front and center', b:'The brief leads with the one thing only he can do (a physical demarc test) and the groundwork agents already did. Likely-cause and site details tuck away to keep it light. Tabs (Brief, Parts, On site, Close) all work. Ray taps Accept dispatch.', render:()=>rayJob(rayTab||'brief')},
+  {p:'ray', t:'On site: Ray runs the guided runbooks', b:'Ray arrives and taps into the On site tab. The runbooks are queued — Area Node Check, Site Edge Health, Clinic App Brownout, and the physical Demarc Test. He taps Run diagnostics to kick them off.', render:()=>rayJob('onsite')},
+  {p:'ray', t:'Runbooks done — Diagnostic Agent proposes permanent route correction', b:'All four runbooks pass. The demarc test confirms a provider-side fault. The Diagnostic Agent has already proposed a permanent route correction to Marcus Chen for approval. Ray sees the proposal and a passive "Switch to Marcus →" — no action needed from him here.', render:()=>rayJob('onsite','done')},
+  {p:'marcus', t:'Marcus lands on his dashboard — a new approval just arrived', b:'IT Ops opens to the dashboard. A notification and a highlighted New Approval card flag the NET-2208 route correction that Ray\'s evidence just produced. He taps it to drill in.', render:()=>marcusDashboard()},
+  {p:'marcus', t:'Marcus drills into the approval — three-pane, with full screen', b:'Going from a card to its detail reflows to three panes (and can open full screen). He sees telemetry, the agent\'s reasoning, blast radius scoped to Plano West only, and an armed rollback. The CTA is Approve mitigation.', render:()=> expanded ? marcusApprovalFull('review') : marcusCockpit('NET-2208', marcusApprovalPane('review'))},
   {p:'marcus', t:'Approved — the runbook executes and the network goes healthy', b:'The Permanent Route Correction runs under governance: route updated, apps tested, 30-min monitor with rollback armed. Live network health shows app loss back to 0.4%.', render:()=> expanded ? marcusApprovalFull('done') : marcusCockpit('NET-2208', marcusApprovalPane('done'))},
-  {p:'ray', t:'Outcome flips to Successful — Ray verifies and closes', b:'Now that IT Ops approved and the fix executed, the Diagnostic Agent’s outcome flips from "mitigation suggested" to "successful". With the network healthy, Ray confirms each criterion and taps Verify & close. No agent self-close.', render:()=>rayJob(rayTab||'close')},
-  {p:'sarah', t:'Sarah approves the one outbound client message', b:'The Comms agent drafts the resolution update from live incident state. Every outbound client message is a CSA approval — no exceptions. Sarah reviews and sends.', render:()=>sarahQueue('NET-2208', sarahCommsDrawer())},
-  {p:'elena', t:'Elena gets a clear restoration update — inside SLA', b:'Back in the portal, services show healthy and the message explains exactly what happened and what’s still monitored. Elena never had to chase a status.', render:()=>elenaPortal('restored')},
+  {p:'ray', t:'Outcome flips to Successful — Ray verifies the fix', b:'Now that IT Ops approved and the fix executed, the Diagnostic Agent\'s outcome flips from "mitigation suggested" to "successful". With the network healthy, Ray runs diagnostics to confirm, then verifies each close criterion.', render:()=>rayJob('close')},
+  {p:'ray', t:'All criteria confirmed — Ray taps Verify & close', b:'Each close criterion passes. Ray taps Verify & close. No agent self-close — the human confirms the job is done.', render:()=>rayJob('close','done')},
+  {p:'marcus', t:'Marcus approves the outbound client communication', b:'The Communications Agent drafted the resolution update for Elena from live incident state. All outbound B2B client messages are IT Ops Approval mode — Marcus reviews and approves before it sends.', render:()=>marcusCockpit('NET-2208', marcusCommsDrawer())},
   {p:'sarah', t:'All four, one outcome', b:'After Ray verifies and closes, you land on all four dashboards in one screen — Elena, Sarah, Ray, and Marcus — every surface showing NET-2208 resolved inside SLA.', render:()=>fourUp()},
 ];
 
@@ -986,9 +1036,59 @@ let rayTab = null;
 let diagState = null;     // null | 'running' | 'done'
 let diagAnimating = false;
 let viewOverride = null;  // exploratory screen, cleared on Next/Back
+const JSTAGES = [
+  {n:1, name:'Report', actor:'Elena Park', type:'cust'},
+  {n:2, name:'Classify & initial diagnosis', actor:'Intake Agent → Diagnostic Agent', type:'agent'},
+  {n:3, name:'Route & dispatch', actor:'Field Service Orchestrator', type:'agent'},
+  {n:4, name:'Investigate on site', actor:'Ray Oak, Field Service Agent', type:'human'},
+  {n:5, name:'Mitigate', actor:'Ray Oak, Field Service Agent', type:'human'},
+  {n:6, name:'Diagnose & propose fix', actor:'Diagnostic Agent', type:'agent'},
+  {n:7, name:'Approve route correction', actor:'Marcus Chen, IT Ops', type:'human'},
+  {n:8, name:'Execute permanent fix', actor:'Resolution Agent', type:'agent'},
+  {n:9, name:'Draft resolution comms', actor:'Communications Agent', type:'agent'},
+  {n:10, name:'Approve & send comms', actor:'Marcus Chen, IT Ops', type:'human'},
+];
+// maps STORY index → active stage number (null = all complete)
+const SLIDE_STAGE = [1,2,2,2,3,4,5,6,7,7,8,8,9,10,null];
+
+function buildJourney(){
+  const jmap = document.getElementById('jmap');
+  // clear existing stage nodes (keep title)
+  const title = document.getElementById('jmap-title');
+  jmap.innerHTML = '';
+  jmap.appendChild(title);
+  JSTAGES.forEach((st, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'jstage';
+    div.id = 'jstage-'+st.n;
+    div.innerHTML = `<div class="jnum">${st.n}</div><div class="jinfo"><div class="jname">${st.name}</div><div class="jactor jactor-${st.type}">${st.actor}</div></div>`;
+    jmap.appendChild(div);
+    if(idx < JSTAGES.length-1){
+      const conn = document.createElement('div');
+      conn.className = 'jhandoff-line';
+      conn.style.cssText = 'width:1px;height:10px;background:#252839;margin-left:28px;';
+      jmap.appendChild(conn);
+    }
+  });
+}
+
+function updateJourney(activeStage){
+  JSTAGES.forEach(st=>{
+    const el = document.getElementById('jstage-'+st.n);
+    if(!el) return;
+    el.classList.toggle('active', st.n === activeStage);
+  });
+  // scroll active stage into view
+  if(activeStage){
+    const el = document.getElementById('jstage-'+activeStage);
+    if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+}
+
 function paint(){
   const s = viewOverride || STORY[i];
-  document.getElementById('stage').innerHTML = s.render();
+  document.getElementById('proto-canvas').innerHTML = s.render();
+  updateJourney(SLIDE_STAGE[i]);
   const p = A[s.p];
   document.getElementById('p-persona').innerHTML = `${av(p,30)}<div><div class="nm">${p.n}</div><div class="rl">${p.r}</div></div>`;
   document.getElementById('p-title').textContent = s.t;
@@ -1013,11 +1113,11 @@ function paint(){
     if(a==='expand'){ expanded=true; paint(); }
     else if(a==='collapse'){ expanded=false; paint(); }
     else if(a==='takeover'){ i=4; expanded=false; rayTab=null; diagState=null; viewOverride=null; paint(); }
-    else if(a==='approve'){ i=9; paint(); }                       // execute → done (keeps expand state)
+    else if(a==='approve'){ i=10; paint(); }                      // execute → done (keeps expand state)
     else if(a==='goto-onsite'){ i=6; rayTab=null; diagState=null; paint(); }   // Accept dispatch
     else if(a==='rundiag'){ diagState='running'; diagAnimating=false; paint(); }
-    else if(a==='to-itops'){ i=7; rayTab=null; diagState=null; viewOverride=null; paint(); }
-    else if(a==='finish'){ i=STORY.length-1; rayTab=null; diagState=null; expanded=false; viewOverride=null; paint(); }
+    else if(a==='to-itops'){ i=8; rayTab=null; diagState=null; viewOverride=null; paint(); }
+    else if(a==='finish'){ i=13; rayTab=null; diagState=null; expanded=false; viewOverride=null; paint(); }
   }));
   // Ray mobile tab switching (stays on same story step)
   document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>{ rayTab=el.dataset.tab; diagState=null; paint(); }));
@@ -1027,7 +1127,7 @@ function paint(){
   if(diagState==='running' && !diagAnimating) startDiag();
 }
 function navTo(key){
-  const steps={'go:elena':0,'go:sarah-dash':1,'go:sarah-watch':2,'go:sarah-ticket':3,'go:ray-day':4,'go:marcus-dash':7,'go:marcus-approval':8};
+  const steps={'go:elena':0,'go:sarah-dash':1,'go:sarah-watch':2,'go:sarah-ticket':3,'go:ray-day':4,'go:marcus-dash':8,'go:marcus-approval':9};
   expanded=false; rayTab=null; diagState=null;
   if(key in steps){ viewOverride=null; i=steps[key]; paint(); return; }
   if(EXPLORE[key]){ viewOverride=EXPLORE[key]; paint(); return; }
@@ -1045,6 +1145,7 @@ function startDiag(){
 }
 function go(d){ i = (i+d+STORY.length)%STORY.length; expanded=false; rayTab=null; diagState=null; viewOverride=null; paint(); }
 document.getElementById('p-next').addEventListener('click',()=>{ i===STORY.length-1 ? (i=0,paint()) : go(1); });
+buildJourney();
 document.getElementById('p-back').addEventListener('click',()=>go(-1));
 document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight')go(1); if(e.key==='ArrowLeft')go(-1); });
 paint();
